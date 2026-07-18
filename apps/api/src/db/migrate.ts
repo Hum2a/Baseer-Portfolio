@@ -43,12 +43,19 @@ async function main() {
         continue;
       }
       const body = readFileSync(join(dir, file), "utf8");
-      await client.query(body);
-      await client.query(
-        `INSERT INTO "__drizzle_migrations" (hash, created_at) VALUES ($1, $2)`,
-        [file, Date.now()],
-      );
-      console.log(`applied ${file}`);
+      await client.query("BEGIN");
+      try {
+        await client.query(body);
+        await client.query(
+          `INSERT INTO "__drizzle_migrations" (hash, created_at) VALUES ($1, $2)`,
+          [file, Date.now()],
+        );
+        await client.query("COMMIT");
+        console.log(`applied ${file}`);
+      } catch (err) {
+        await client.query("ROLLBACK");
+        throw err;
+      }
     }
     console.log("Migrations complete.");
   } finally {
