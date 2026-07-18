@@ -17,6 +17,7 @@ ok(".env.example", existsSync(".env.example"));
 ok("apps/web/.dev.vars.example", existsSync("apps/web/.dev.vars.example"));
 ok("apps/web/.env.example", existsSync("apps/web/.env.example"));
 ok("wrangler", existsSync("apps/web/wrangler.toml"));
+ok("secrets-sync script", existsSync("scripts/secrets-sync.mjs"));
 ok(".env", existsSync(".env"), existsSync(".env") ? "" : "run npm run setup");
 ok(
   "apps/web/.dev.vars",

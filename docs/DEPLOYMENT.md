@@ -17,19 +17,28 @@ Single Worker deploy from `apps/web`. No Cloudflare Pages.
 1. Neon project + `staging` / `main` branches; create Hyperdrive configs pointing at each.
 2. R2 buckets `baseer-portfolio-staging` and `baseer-portfolio`.
 3. Cloudflare DNS already on `baseer.co.uk` — attach custom domains via `wrangler.toml` routes.
-4. Secrets (per env):
+4. Secrets (per env) — sync from a local env file:
 
 ```bash
-cd apps/web
-npx wrangler secret put DATABASE_URL --env staging
-# optional for S3-style presigns:
-npx wrangler secret put R2_ACCOUNT_ID --env staging
-npx wrangler secret put R2_ACCESS_KEY_ID --env staging
-npx wrangler secret put R2_SECRET_ACCESS_KEY --env staging
-npx wrangler secret put R2_BUCKET_NAME --env staging
+# Cloudflare API creds (once)
+cp .env.cloudflare.example .env.cloudflare
+# fill CLOUDFLARE_API_TOKEN (+ ACCOUNT_ID)
+
+# Staging Neon (+ optional R2) secrets
+cp .env.staging.example .env.staging
+# fill DATABASE_URL for the Neon staging branch
+
+npm run secrets:show:staging      # inspect what will upload
+npm run secrets:sync:staging      # wrangler secret bulk → staging Worker
+
+# Production
+cp .env.production.example .env.production
+npm run secrets:sync:production
 ```
 
-`OWNER_ID` is set in `wrangler.toml` `[vars]` (default `seed-user-baseer`). Keep it aligned with the seeded user id.
+Source file order: `.env.<env>` → `apps/web/.dev.vars` → `.env`.  
+Synced keys: `DATABASE_URL` (required), optional `R2_*`.  
+`APP_URL` / `OWNER_ID` stay in `wrangler.toml` `[vars]` — not uploaded as secrets.
 
 5. Add Hyperdrive binding ids to `wrangler.toml` under each env when ready.
 6. Migrate + seed against each Neon branch:

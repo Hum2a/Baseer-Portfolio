@@ -6,6 +6,12 @@ dist
 .env
 .env.*
 !.env.example
+!.env.staging.example
+!.env.production.example
+!.env.cloudflare.example
+.env.cloudflare
+.env.staging
+.env.production
 !apps/web/.env.example
 !**/.env.example
 coverage

@@ -1,5 +1,6 @@
 name = "baseer-portfolio"
 main = "src/worker.ts"
+account_id = "953a4a7dca82bf090ec89eedeb87a064"
 compatibility_date = "2026-07-18"
 compatibility_flags = ["nodejs_compat"]
 

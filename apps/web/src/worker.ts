@@ -31,6 +31,10 @@ function isHtmlNavigation(request: Request, pathname: string): boolean {
   return accept.includes("text/html");
 }
 
+async function serveIndex(env: WorkerEnv, request: Request): Promise<Response> {
+  return env.ASSETS.fetch(new Request(new URL("/index.html", request.url), request));
+}
+
 export default {
   async fetch(
     request: Request,
@@ -44,39 +48,56 @@ export default {
     }
 
     if (url.pathname === "/sitemap.xml") {
-      const xml = await buildSitemapXml(env);
-      return new Response(xml, {
-        headers: {
-          "Content-Type": "application/xml; charset=utf-8",
-          "Cache-Control": `public, max-age=${META_CACHE_TTL_SECONDS}`,
-        },
-      });
+      try {
+        const xml = await buildSitemapXml(env);
+        return new Response(xml, {
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": `public, max-age=${META_CACHE_TTL_SECONDS}`,
+          },
+        });
+      } catch (err) {
+        console.error("sitemap failed", err);
+        return new Response("<?xml version=\"1.0\" encoding=\"UTF-8\"?><urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>", {
+          headers: { "Content-Type": "application/xml; charset=utf-8" },
+        });
+      }
     }
 
     if (isHtmlNavigation(request, url.pathname)) {
-      const cache = (caches as unknown as { default: Cache }).default;
-      const cacheKey = new Request(url.toString(), request);
-      const cached = await cache.match(cacheKey);
-      if (cached) return cached;
+      try {
+        const cache = (caches as unknown as { default: Cache }).default;
+        const cacheKey = new Request(url.toString(), request);
+        const cached = await cache.match(cacheKey);
+        if (cached) return cached;
 
-      const assetRes = await env.ASSETS.fetch(
-        new Request(new URL("/index.html", url.origin), request),
-      );
-      const html = await assetRes.text();
-      const meta = await resolveSeoMeta(env, url.pathname);
-      const origin = env.APP_URL.replace(/\/$/, "");
-      const injected = injectMetaIntoHtml(html, meta, origin);
+        const assetRes = await serveIndex(env, request);
+        const html = await assetRes.text();
 
-      const response = new Response(injected, {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": `public, max-age=${META_CACHE_TTL_SECONDS}`,
-        },
-      });
+        let body = html;
+        try {
+          const meta = await resolveSeoMeta(env, url.pathname);
+          const origin = (env.APP_URL || url.origin).replace(/\/$/, "");
+          body = injectMetaIntoHtml(html, meta, origin);
+        } catch (err) {
+          // Missing DATABASE_URL / Neon — still serve the SPA shell.
+          console.error("meta injection failed; serving raw index", err);
+        }
 
-      ctx.waitUntil(cache.put(cacheKey, response.clone()));
-      return response;
+        const response = new Response(body, {
+          status: 200,
+          headers: {
+            "Content-Type": "text/html; charset=utf-8",
+            "Cache-Control": `public, max-age=${META_CACHE_TTL_SECONDS}`,
+          },
+        });
+
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      } catch (err) {
+        console.error("html navigation failed", err);
+        return serveIndex(env, request);
+      }
     }
 
     return env.ASSETS.fetch(request);
