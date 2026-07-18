@@ -7,7 +7,7 @@ import {
   presignRequestSchema,
 } from "@baseer-portfolio/shared";
 import type { AppVariables, Env } from "../env";
-import { withOwner } from "../lib/owner";
+import { requireAdmin } from "../lib/session";
 import { buildObjectKey, createPresignedUrl } from "../lib/r2";
 
 export const mediaRoutes = new Hono<{
@@ -15,8 +15,8 @@ export const mediaRoutes = new Hono<{
   Variables: AppVariables;
 }>();
 
-mediaRoutes.use("/presign", withOwner);
-mediaRoutes.use("/proxy/*", withOwner);
+mediaRoutes.use("/presign", requireAdmin);
+mediaRoutes.use("/proxy/*", requireAdmin);
 
 mediaRoutes.post("/presign", async (c) => {
   const body = presignRequestSchema.parse(await c.req.json());

@@ -4,7 +4,7 @@ import { reorderSchema, skillInputSchema } from "@baseer-portfolio/shared";
 import { createDb, withOwnerRls } from "../db/client";
 import { skills } from "../db/schema";
 import type { AppVariables, Env } from "../env";
-import { withOwner } from "../lib/owner";
+import { requireAdmin } from "../lib/session";
 
 export const skillsRoutes = new Hono<{
   Bindings: Env;
@@ -21,7 +21,7 @@ skillsRoutes.get("/public", async (c) => {
   }
 });
 
-skillsRoutes.use("/admin/*", withOwner);
+skillsRoutes.use("/admin/*", requireAdmin);
 
 skillsRoutes.get("/admin", async (c) => {
   const { db, pool } = createDb(c.env);

@@ -33,13 +33,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 /** Secrets uploaded via `wrangler secret bulk` (not plain [vars]). */
 const WORKER_SECRET_KEYS = [
   "DATABASE_URL",
+  "BETTER_AUTH_SECRET",
   "R2_ACCOUNT_ID",
   "R2_ACCESS_KEY_ID",
   "R2_SECRET_ACCESS_KEY",
   "R2_BUCKET_NAME",
 ];
 
-const REQUIRED_KEYS = ["DATABASE_URL"];
+const REQUIRED_KEYS = ["DATABASE_URL", "BETTER_AUTH_SECRET"];
 
 const VALID = ["staging", "production"];
 const showMode = process.argv.includes("--show");
@@ -81,6 +82,18 @@ function isPlaceholderDb(value) {
     value.includes("user:pass@localhost") ||
     value.includes("postgres://user:pass")
   );
+}
+
+function isUnusableSecret(key, value) {
+  if (!value) return true;
+  if (key === "DATABASE_URL") return isPlaceholderDb(value);
+  if (key === "BETTER_AUTH_SECRET") {
+    return (
+      value.includes("replace-with") ||
+      value.length < 16
+    );
+  }
+  return false;
 }
 
 function loadCloudflareCreds() {
@@ -133,20 +146,20 @@ if (showMode) {
     const value = source[key];
     const required = REQUIRED_KEYS.includes(key);
     let status = "MISSING";
-    if (value && !isPlaceholderDb(value)) status = "set    ";
-    else if (value && isPlaceholderDb(value)) status = "PLACEHOLDER";
+    if (value && !isUnusableSecret(key, value)) status = "set    ";
+    else if (value && isUnusableSecret(key, value)) status = "PLACEHOLDER";
     else if (!required) status = "optional";
     console.log(`${status.padEnd(12)} ${key}${required ? " *" : ""}`);
   }
   console.log("\n* required");
   console.log(
-    `\nPlain [vars] in wrangler.toml (not synced as secrets): APP_URL, OWNER_ID`,
+    `\nPlain [vars] in wrangler.toml (not synced as secrets): APP_URL, OWNER_ID, ADMIN_EMAIL`,
   );
   process.exit(0);
 }
 
 const missing = REQUIRED_KEYS.filter(
-  (key) => !toSync[key] || isPlaceholderDb(toSync[key]),
+  (key) => !toSync[key] || isUnusableSecret(key, toSync[key]),
 );
 if (missing.length) {
   console.error(

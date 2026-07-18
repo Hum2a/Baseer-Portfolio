@@ -1,11 +1,13 @@
 import { Hono } from "hono";
 import type { AppVariables, Env } from "./env";
+import { createAuth } from "./lib/auth";
 import { caseStudiesRoutes } from "./routes/case-studies";
 import { testimonialsRoutes } from "./routes/testimonials";
 import { skillsRoutes } from "./routes/skills";
 import { timelineRoutes } from "./routes/timeline";
 import { settingsRoutes } from "./routes/settings";
 import { mediaRoutes } from "./routes/media";
+import { analyticsRoutes } from "./routes/analytics";
 
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -20,12 +22,18 @@ export function createApp() {
 
   app.get("/api/health", (c) => c.json({ ok: true }));
 
+  app.on(["POST", "GET"], "/api/auth/*", (c) => {
+    const auth = createAuth(c.env);
+    return auth.handler(c.req.raw);
+  });
+
   app.route("/api/case-studies", caseStudiesRoutes);
   app.route("/api/testimonials", testimonialsRoutes);
   app.route("/api/skills", skillsRoutes);
   app.route("/api/timeline", timelineRoutes);
   app.route("/api/settings", settingsRoutes);
   app.route("/api/media", mediaRoutes);
+  app.route("/api/analytics", analyticsRoutes);
 
   return app;
 }

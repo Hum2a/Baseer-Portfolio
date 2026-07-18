@@ -1,12 +1,15 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import { AdminLayout } from "./components/admin/AdminLayout";
+import { AdminRequire } from "./components/admin/AdminRequire";
 import { HomePage } from "./pages/Home";
 import { SectorPage } from "./pages/SectorPage";
 import { WorkDetailPage } from "./pages/WorkDetail";
 import { AboutPage } from "./pages/About";
 import { ContactPage } from "./pages/Contact";
+import { AdminLoginPage } from "./pages/admin/Login";
 import { AdminDashboardPage } from "./pages/admin/Dashboard";
+import { AdminAnalyticsPage } from "./pages/admin/AnalyticsAdmin";
 import { AdminCaseStudiesListPage } from "./pages/admin/CaseStudiesList";
 import {
   AdminCaseStudyEditPage,
@@ -31,8 +34,18 @@ export function App() {
           <Route path="contact" element={<ContactPage />} />
         </Route>
 
-        <Route path="admin" element={<AdminLayout />}>
+        <Route path="admin/login" element={<AdminLoginPage />} />
+
+        <Route
+          path="admin"
+          element={
+            <AdminRequire>
+              <AdminLayout />
+            </AdminRequire>
+          }
+        >
           <Route index element={<AdminDashboardPage />} />
+          <Route path="analytics" element={<AdminAnalyticsPage />} />
           <Route path="case-studies" element={<AdminCaseStudiesListPage />} />
           <Route path="case-studies/new" element={<AdminCaseStudyNewPage />} />
           <Route path="case-studies/:id" element={<AdminCaseStudyEditPage />} />

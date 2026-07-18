@@ -5,6 +5,7 @@ import {
   writeFileSync,
   copyFileSync,
 } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -89,27 +90,31 @@ const databaseUrl =
   "postgres://user:pass@localhost:5432/baseer_portfolio";
 
 const ownerId = env.OWNER_ID || devVars.OWNER_ID || "seed-user-baseer";
-
-delete env.BETTER_AUTH_SECRET;
-delete env.BETTER_AUTH_URL;
-delete env.ADMIN_PASSWORD;
-delete env.COOKIE_DOMAIN;
-delete devVars.BETTER_AUTH_SECRET;
-delete devVars.BETTER_AUTH_URL;
-delete devVars.ADMIN_PASSWORD;
-delete devVars.COOKIE_DOMAIN;
+const authSecret =
+  env.BETTER_AUTH_SECRET ||
+  devVars.BETTER_AUTH_SECRET ||
+  randomBytes(32).toString("hex");
+const adminPassword =
+  env.ADMIN_PASSWORD ||
+  devVars.ADMIN_PASSWORD ||
+  "changeme-baseer-admin";
 
 env.DATABASE_URL = databaseUrl;
 env.OWNER_ID = ownerId;
 env.APP_URL = env.APP_URL || "http://localhost:5173";
 env.ADMIN_EMAIL = env.ADMIN_EMAIL || "baseer@baseer.co.uk";
 env.ADMIN_NAME = env.ADMIN_NAME || "Baseer";
+env.ADMIN_PASSWORD = adminPassword;
+env.BETTER_AUTH_SECRET = authSecret;
 env.NODE_ENV = env.NODE_ENV || "development";
 env.VITE_API_BASE = env.VITE_API_BASE || "/api";
 
 devVars.DATABASE_URL = databaseUrl;
 devVars.OWNER_ID = ownerId;
 devVars.APP_URL = env.APP_URL === "http://localhost:5173" ? "http://localhost:8787" : env.APP_URL;
+devVars.BETTER_AUTH_SECRET = authSecret;
+devVars.ADMIN_EMAIL = env.ADMIN_EMAIL;
+devVars.ADMIN_PASSWORD = adminPassword;
 
 writeFileSync(
   envPath,

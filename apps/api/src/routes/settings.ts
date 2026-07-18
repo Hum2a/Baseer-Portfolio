@@ -4,7 +4,7 @@ import { siteSettingsInputSchema } from "@baseer-portfolio/shared";
 import { createDb, withOwnerRls } from "../db/client";
 import { siteSettings } from "../db/schema";
 import type { AppVariables, Env } from "../env";
-import { withOwner } from "../lib/owner";
+import { requireAdmin } from "../lib/session";
 
 export const settingsRoutes = new Hono<{
   Bindings: Env;
@@ -22,7 +22,7 @@ settingsRoutes.get("/public", async (c) => {
   }
 });
 
-settingsRoutes.use("/admin/*", withOwner);
+settingsRoutes.use("/admin/*", requireAdmin);
 
 settingsRoutes.get("/admin", async (c) => {
   const { db, pool } = createDb(c.env);

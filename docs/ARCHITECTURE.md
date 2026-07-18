@@ -10,7 +10,7 @@ Baseer Portfolio is a single-tenant marketing CV site: React SPA + Hono API on *
    - `/sitemap.xml` → generated from published case studies
    - HTML navigations → load `index.html` from assets, inject OG/meta tags, short Cache API TTL
    - Everything else → Static Assets (SPA `not_found_handling`)
-3. SPA calls same-origin `/api/...`. Admin writes use fixed `OWNER_ID` (no login).
+3. SPA calls same-origin `/api/...`. Public routes are open; admin mutations require a Better Auth session cookie. Public pages POST lightweight beacons to `/api/analytics/beacon`.
 
 ## Packages
 
@@ -22,12 +22,18 @@ Baseer Portfolio is a single-tenant marketing CV site: React SPA + Hono API on *
 
 ## Data
 
-Neon Postgres via Hyperdrive (or `DATABASE_URL` locally). Content tables use Neon `crudPolicy` RLS keyed to `OWNER_ID` via `withOwnerRls`. Public JSON routes filter `published` in handlers; they do not relax RLS.
+Neon Postgres via Hyperdrive (or `DATABASE_URL` locally). Content tables use Neon `crudPolicy` RLS keyed to the session user id via `withOwnerRls`. Public JSON routes filter `published` in handlers; they do not relax RLS.
+
+`analytics_events` is append-only first-party telemetry (no PII); not under content RLS.
 
 ## Auth
 
-None. There is no login, session, or Better Auth. Admin CMS at `/admin` is open; mutations run as `OWNER_ID` from Worker env (same pattern as Docket).
+Better Auth (email/password) at `/api/auth`, same origin. Sign-up disabled. Single admin seeded with `OWNER_ID` / `ADMIN_EMAIL` / `ADMIN_PASSWORD`. Admin SPA gated by `AdminRequire`; API admin routes use `requireAdmin` (optional `ADMIN_EMAIL` allowlist).
+
+## Analytics
+
+Client `trackPageView` on public route changes → `POST /api/analytics/beacon`. Admin summary at `GET /api/analytics/admin/summary?range=7d|30d|90d`.
 
 ## Media
 
-Cloudflare R2 binding `MEDIA`. Uploads via validated presigned PUT (or Worker proxy when R2 S3 credentials are absent).
+Cloudflare R2 binding `MEDIA`. Uploads via validated presigned PUT (or Worker proxy when R2 S3 credentials are absent). Presign/proxy require an admin session.

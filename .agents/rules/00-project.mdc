@@ -6,7 +6,7 @@ alwaysApply: true
 
 # Baseer Portfolio
 
-Marketing CV site for Baseer. Single owner (fixed `OWNER_ID`, no login), own Neon DB, one Cloudflare Worker (Static Assets + `/api`).
+Marketing CV site for Baseer. Single admin (Better Auth email/password), own Neon DB, one Cloudflare Worker (Static Assets + `/api`).
 
 - Domains: `baseer.co.uk` / `staging.baseer.co.uk` (SPA + API same origin)
 - Zone: `baseer.co.uk` Cloudflare account (single-level subdomains, Universal SSL)

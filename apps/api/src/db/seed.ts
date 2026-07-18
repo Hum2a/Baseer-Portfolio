@@ -1,6 +1,7 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
+import { hashPassword } from "better-auth/crypto";
 import { loadEnv } from "./load-env";
 import * as schema from "./schema";
 import type { Sector, SpecMetric } from "@baseer-portfolio/shared";
@@ -19,6 +20,7 @@ const PLACEHOLDER =
 const adminEmail = process.env.ADMIN_EMAIL ?? "baseer@baseer.co.uk";
 const adminName = process.env.ADMIN_NAME ?? "Baseer";
 const adminId = process.env.OWNER_ID ?? "seed-user-baseer";
+const adminPassword = process.env.ADMIN_PASSWORD ?? "changeme-baseer-admin";
 
 type CaseSeed = {
   sector: Sector;
@@ -97,27 +99,68 @@ const cases: CaseSeed[] = [
   },
 ];
 
+async function ensureAdminCredentials(
+  db: ReturnType<typeof drizzle<typeof schema>>,
+) {
+  const existing = await db
+    .select()
+    .from(schema.user)
+    .where(eq(schema.user.id, adminId))
+    .limit(1);
+
+  if (existing.length === 0) {
+    await db.insert(schema.user).values({
+      id: adminId,
+      name: adminName,
+      email: adminEmail,
+      emailVerified: true,
+    });
+    console.log(`Created admin user ${adminEmail} (${adminId})`);
+  } else {
+    await db
+      .update(schema.user)
+      .set({ name: adminName, email: adminEmail, emailVerified: true })
+      .where(eq(schema.user.id, adminId));
+    console.log(`Admin user already exists (${adminEmail})`);
+  }
+
+  const hashed = await hashPassword(adminPassword);
+  const accountId = `credential-${adminId}`;
+  const existingAccount = await db
+    .select()
+    .from(schema.account)
+    .where(
+      and(
+        eq(schema.account.userId, adminId),
+        eq(schema.account.providerId, "credential"),
+      ),
+    )
+    .limit(1);
+
+  if (existingAccount.length === 0) {
+    await db.insert(schema.account).values({
+      id: accountId,
+      accountId: adminEmail,
+      providerId: "credential",
+      userId: adminId,
+      password: hashed,
+    });
+    console.log("Created credential account for admin login");
+  } else {
+    await db
+      .update(schema.account)
+      .set({ password: hashed, accountId: adminEmail })
+      .where(eq(schema.account.id, existingAccount[0]!.id));
+    console.log("Updated admin credential password from ADMIN_PASSWORD");
+  }
+}
+
 async function main() {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
   const db = drizzle(pool, { schema });
 
   try {
-    const existing = await db
-      .select()
-      .from(schema.user)
-      .where(eq(schema.user.id, adminId))
-      .limit(1);
-
-    if (existing.length === 0) {
-      await db.insert(schema.user).values({
-        id: adminId,
-        name: adminName,
-        email: adminEmail,
-      });
-      console.log(`Created owner user ${adminEmail} (${adminId})`);
-    } else {
-      console.log(`Owner user already exists (${adminEmail})`);
-    }
+    await ensureAdminCredentials(db);
 
     const existingCases = await db.select().from(schema.caseStudies).limit(1);
     if (existingCases.length > 0) {

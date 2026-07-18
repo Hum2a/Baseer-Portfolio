@@ -11,6 +11,8 @@ export type WorkerEnv = {
   MEDIA: R2Bucket;
   APP_URL: string;
   OWNER_ID: string;
+  BETTER_AUTH_SECRET: string;
+  ADMIN_EMAIL?: string;
   DATABASE_URL?: string;
   HYPERDRIVE?: { connectionString: string };
   R2_ACCOUNT_ID?: string;

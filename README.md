@@ -1,8 +1,8 @@
 # Baseer Portfolio
 
-Marketing CV site for Baseer — case studies across automotive, charity, and education, with a small admin CMS (no login).
+Marketing CV site for Baseer — case studies across automotive, charity, and education, with an admin CMS (Better Auth login) and first-party analytics.
 
-**Stack:** React 19 + Vite, Hono, Neon + Drizzle (RLS), R2, single Cloudflare Worker (Static Assets + `/api`).
+**Stack:** React 19 + Vite, Hono, Neon + Drizzle (RLS), Better Auth, R2, single Cloudflare Worker (Static Assets + `/api`).
 
 See [AGENTS.md](./AGENTS.md) and [docs/](./docs/).
 
@@ -24,15 +24,17 @@ In another terminal (API + Worker locally):
 npm run dev:worker
 ```
 
-Admin CMS: `/admin` (no login — uses fixed `OWNER_ID`).
+Admin CMS: `/admin/login` (seed credentials from `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`).
 
 ## Sync secrets to Cloudflare
 
 ```bash
 cp .env.cloudflare.example .env.cloudflare   # CLOUDFLARE_API_TOKEN
-cp .env.staging.example .env.staging         # DATABASE_URL for staging Neon
+cp .env.staging.example .env.staging         # DATABASE_URL + BETTER_AUTH_SECRET
 npm run secrets:show:staging
 npm run secrets:sync:staging
 ```
 
 Production: `.env.production` + `npm run secrets:sync:production`.
+
+Remember to run `db:migrate` / `db:seed` against each Neon branch before relying on login or analytics.

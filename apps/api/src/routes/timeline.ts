@@ -4,7 +4,7 @@ import { reorderSchema, timelineInputSchema } from "@baseer-portfolio/shared";
 import { createDb, withOwnerRls } from "../db/client";
 import { timelineEntries } from "../db/schema";
 import type { AppVariables, Env } from "../env";
-import { withOwner } from "../lib/owner";
+import { requireAdmin } from "../lib/session";
 
 export const timelineRoutes = new Hono<{
   Bindings: Env;
@@ -24,7 +24,7 @@ timelineRoutes.get("/public", async (c) => {
   }
 });
 
-timelineRoutes.use("/admin/*", withOwner);
+timelineRoutes.use("/admin/*", requireAdmin);
 
 timelineRoutes.get("/admin", async (c) => {
   const { db, pool } = createDb(c.env);

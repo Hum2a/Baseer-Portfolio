@@ -10,4 +10,6 @@ alwaysApply: true
 - Staging: push `develop` → `--env staging`
 - Production: tag `v*` → `--env production`
 - Never use Cloudflare Pages or `wrangler pages deploy`
-- Secrets via `wrangler secret put` / `.dev.vars` locally — never commit
+- Secrets via `npm run secrets:sync:*` / `.dev.vars` locally — never commit
+- Required Worker secrets: `DATABASE_URL`, `BETTER_AUTH_SECRET` (+ optional `R2_*`)
+- After schema changes: migrate + seed each Neon branch (`0001_better_auth`, `0002_analytics`)

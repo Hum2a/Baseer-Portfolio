@@ -45,6 +45,8 @@ if (existsSync(".env")) {
     console.log("[WARN] DATABASE_URL still placeholder — fine for scaffold, not for db:*");
   }
   ok("OWNER_ID", /^OWNER_ID=.+/m.test(env));
+  ok("BETTER_AUTH_SECRET", /^BETTER_AUTH_SECRET=.+/m.test(env));
+  ok("ADMIN_EMAIL", /^ADMIN_EMAIL=.+/m.test(env));
 }
 
 let failed = 0;

@@ -10,10 +10,18 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { authenticatedRole, authUid, crudPolicy } from "drizzle-orm/neon";
-import { user } from "./auth-schema";
 import type { SpecMetric, SocialLinks } from "@baseer-portfolio/shared";
+import { user } from "./auth-schema";
 
-export { user } from "./auth-schema";
+export {
+  user,
+  session,
+  account,
+  verification,
+  userRelations,
+  sessionRelations,
+  accountRelations,
+} from "./auth-schema";
 
 export const sectorEnum = pgEnum("sector", [
   "automotive",
@@ -184,3 +192,15 @@ export const testimonialsRelations = relations(testimonials, ({ one }) => ({
     references: [caseStudies.id],
   }),
 }));
+
+export const analyticsEvents = pgTable("analytics_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+  path: text("path").notNull(),
+  referrer: text("referrer"),
+  country: text("country"),
+  device: text("device"),
+  eventType: text("event_type").notNull().default("page_view"),
+  caseStudySlug: text("case_study_slug"),
+  sessionId: text("session_id").notNull(),
+});

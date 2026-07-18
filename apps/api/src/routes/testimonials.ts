@@ -4,7 +4,7 @@ import { reorderSchema, testimonialInputSchema } from "@baseer-portfolio/shared"
 import { createDb, withOwnerRls } from "../db/client";
 import { testimonials } from "../db/schema";
 import type { AppVariables, Env } from "../env";
-import { withOwner } from "../lib/owner";
+import { requireAdmin } from "../lib/session";
 
 export const testimonialsRoutes = new Hono<{
   Bindings: Env;
@@ -24,7 +24,7 @@ testimonialsRoutes.get("/public", async (c) => {
   }
 });
 
-testimonialsRoutes.use("/admin/*", withOwner);
+testimonialsRoutes.use("/admin/*", requireAdmin);
 
 testimonialsRoutes.get("/admin", async (c) => {
   const { db, pool } = createDb(c.env);

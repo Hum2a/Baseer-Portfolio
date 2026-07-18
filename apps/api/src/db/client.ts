@@ -20,7 +20,7 @@ export function createDb(env: Env): { db: Database; pool: Pool } {
   return { db, pool };
 }
 
-/** Map fixed OWNER_ID → auth.user_id() for Neon RLS. */
+/** Map session user id → auth.user_id() for Neon RLS. */
 export async function withOwnerRls<T>(
   db: Database,
   ownerId: string,
