@@ -4,6 +4,13 @@ account_id = "953a4a7dca82bf090ec89eedeb87a064"
 compatibility_date = "2026-07-18"
 compatibility_flags = ["nodejs_compat"]
 
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 [assets]
 directory = "./dist"
 not_found_handling = "single-page-application"
@@ -28,6 +35,13 @@ OWNER_ID = "seed-user-baseer"
 name = "baseer-portfolio-staging"
 workers_dev = false
 
+[env.staging.observability]
+enabled = true
+
+[env.staging.observability.logs]
+enabled = true
+invocation_logs = true
+
 [env.staging.vars]
 APP_URL = "https://staging.baseer.co.uk"
 OWNER_ID = "seed-user-baseer"
@@ -47,6 +61,13 @@ bucket_name = "baseer-portfolio-staging"
 [env.production]
 name = "baseer-portfolio"
 workers_dev = false
+
+[env.production.observability]
+enabled = true
+
+[env.production.observability.logs]
+enabled = true
+invocation_logs = true
 
 [env.production.vars]
 APP_URL = "https://baseer.co.uk"
