@@ -1,0 +1,14 @@
+---
+description: Stack and code organisation
+globs:
+alwaysApply: true
+---
+
+# Stack
+
+- `apps/web` — only deployable Worker (Vite SPA + `src/worker.ts`)
+- `apps/api` — Hono library: schema, routes, R2 — imported by the web Worker
+- `packages/shared` — Zod schemas / shared types
+- React 19 functional components + hooks; Tailwind v4 tokens in `apps/web/src/index.css` only
+- Factories: `createDb(env)`, `createApp(env)` — never module-level env
+- No auth library — admin routes use `OWNER_ID` via `withOwner`

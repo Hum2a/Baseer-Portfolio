@@ -1,0 +1,12 @@
+---
+description: Database and RLS rules
+globs:
+alwaysApply: true
+---
+
+# Database / RLS
+
+- Every content table has `owner_id` + Neon `crudPolicy` + `.enableRLS()`
+- Mutations run inside `withOwnerRls(db, userId, fn)` (JWT claim → `auth.user_id()`)
+- Public GET routes filter `published = true` in the handler; do not relax RLS for anonymous
+- Migrations live in `apps/api/drizzle`; run via `npm run db:migrate`

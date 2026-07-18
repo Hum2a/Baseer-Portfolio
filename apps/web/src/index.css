@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+@theme {
+  --color-fog: #f1f0ec;
+  --color-graphite: #1c1d1f;
+  --color-steel: #35526e;
+  --color-amber: #c97d3d;
+  --color-mist: #d9d7cf;
+
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Source Serif 4", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    color: var(--color-graphite);
+    background-color: var(--color-fog);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font-body);
+    background-color: var(--color-fog);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 100% 0%, rgb(53 82 110 / 0.08), transparent),
+      linear-gradient(180deg, #f1f0ec 0%, #ebe9e3 100%);
+    color: var(--color-graphite);
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-steel) 28%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-steel);
+    outline-offset: 3px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  a:hover {
+    color: var(--color-steel);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .measure {
+    max-width: 70ch;
+  }
+
+  .page-pad {
+    padding-inline: clamp(1.25rem, 4vw, 3.5rem);
+  }
+
+  .section-y {
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+
+  .animate-rise {
+    animation: rise 0.7s ease-out both;
+  }
+
+  .animate-fade {
+    animation: fade 0.6s ease-out both;
+  }
+
+  .animate-rule {
+    animation: rule 0.9s ease-out both;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rule {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-rise,
+  .animate-fade,
+  .animate-rule {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,13 @@
+---
+description: Deployment constraints
+globs:
+alwaysApply: true
+---
+
+# Deployment
+
+- Single Worker: `wrangler deploy` from `apps/web` only
+- Staging: push `develop` → `--env staging`
+- Production: tag `v*` → `--env production`
+- Never use Cloudflare Pages or `wrangler pages deploy`
+- Secrets via `wrangler secret put` / `.dev.vars` locally — never commit

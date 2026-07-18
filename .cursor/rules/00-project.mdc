@@ -1,0 +1,15 @@
+---
+description: Baseer Portfolio project overview and hard constraints
+globs:
+alwaysApply: true
+---
+
+# Baseer Portfolio
+
+Marketing CV site for Baseer. Single owner (fixed `OWNER_ID`, no login), own Neon DB, one Cloudflare Worker (Static Assets + `/api`).
+
+- Domains: `baseer.co.uk` / `staging.baseer.co.uk` (SPA + API same origin)
+- Zone: `baseer.co.uk` Cloudflare account (single-level subdomains, Universal SSL)
+- npm workspaces + Turborepo only — never pnpm/yarn
+- Free Cloudflare tier: no Containers, Queues, Pages, or Advanced Certificate Manager
+- Canonical agent docs: `AGENTS.md`. Sync rules with `npm run rules:sync`.

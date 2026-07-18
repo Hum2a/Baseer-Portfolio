@@ -1,0 +1,12 @@
+---
+description: Testing expectations
+globs:
+alwaysApply: true
+---
+
+# Testing
+
+- Vitest for unit + RLS schema/isolation tests in `apps/api`
+- Playwright smoke in `apps/web/e2e`
+- `npm run db:rls:check` verifies RLS enabled + policies on content tables
+- `npm run ship-it` = check + test + build

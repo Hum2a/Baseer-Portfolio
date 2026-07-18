@@ -1,0 +1,38 @@
+{
+  "name": "baseer-portfolio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Baseer Portfolio — marketing CV site",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "turbo run dev",
+    "dev:worker": "npm run dev:worker --workspace=@baseer-portfolio/web",
+    "build": "turbo run build",
+    "check": "turbo run check",
+    "test": "turbo run test",
+    "test:e2e": "npm run test:e2e --workspace=@baseer-portfolio/web",
+    "test:rls": "npm run test:rls --workspace=@baseer-portfolio/api",
+    "db:migrate": "npm run db:migrate --workspace=@baseer-portfolio/api",
+    "db:seed": "npm run db:seed --workspace=@baseer-portfolio/api",
+    "db:rls:check": "npm run db:rls:check --workspace=@baseer-portfolio/api",
+    "deploy:staging": "npm run deploy:staging --workspace=@baseer-portfolio/web",
+    "deploy:production": "npm run deploy:production --workspace=@baseer-portfolio/web",
+    "rules:sync": "node scripts/rules-sync.mjs",
+    "loc": "node scripts/loc.mjs",
+    "stats": "node scripts/stats.mjs",
+    "doctor": "node scripts/doctor.mjs",
+    "ship-it": "npm run check && npm test && npm run build"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "npm@11.18.0"
+}
