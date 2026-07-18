@@ -9,7 +9,7 @@ alwaysApply: true
 - `apps/web` — only deployable Worker (Vite SPA + `src/worker.ts`)
 - `apps/api` — Hono library: schema, routes, R2 — imported by the web Worker
 - `packages/shared` — Zod schemas / shared types
-- React 19 functional components + hooks; Tailwind v4 tokens in `apps/web/src/index.css` only
+- React 19 functional components + hooks; Tailwind v4 semantic colors (`fog`/`graphite`/`steel`/`amber`/`mist`) bound to `data-theme` via `--theme-*` in `apps/web/src/themes/`
 - Factories: `createDb(env)`, `createAuth(env)`, `createApp()` — never module-level env
 - Better Auth at `/api/auth`; admin routes use `requireAdmin` + `withOwnerRls(db, session.user.id, …)`
 - First-party analytics via `/api/analytics/beacon` + admin summary (no third-party SaaS)

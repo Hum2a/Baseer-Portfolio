@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import clsx from "clsx";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 const links = [
   { to: "/automotive", label: "Automotive" },
@@ -19,22 +20,25 @@ export function SiteHeader() {
         >
           Baseer
         </NavLink>
-        <nav aria-label="Primary" className="flex flex-wrap gap-x-5 gap-y-2">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                clsx(
-                  "font-mono text-xs uppercase tracking-[0.12em] no-underline",
-                  isActive ? "text-steel" : "text-graphite/70 hover:text-steel",
-                )
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <nav aria-label="Primary" className="flex flex-wrap gap-x-5 gap-y-2">
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  clsx(
+                    "font-mono text-xs uppercase tracking-[0.12em] no-underline",
+                    isActive ? "text-steel" : "text-graphite/70 hover:text-steel",
+                  )
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+          <ThemeSwitcher />
+        </div>
       </div>
       <div className="mx-auto max-w-6xl mt-5 h-px bg-mist" />
     </header>

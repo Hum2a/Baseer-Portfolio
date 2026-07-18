@@ -1,11 +1,13 @@
 @import "tailwindcss";
+@import "./themes/themes.css";
 
-@theme {
-  --color-fog: #f1f0ec;
-  --color-graphite: #1c1d1f;
-  --color-steel: #35526e;
-  --color-amber: #c97d3d;
-  --color-mist: #d9d7cf;
+/* inline: keep runtime --theme-* bindings so opacity modifiers still resolve */
+@theme inline {
+  --color-fog: var(--theme-fog);
+  --color-graphite: var(--theme-graphite);
+  --color-steel: var(--theme-steel);
+  --color-amber: var(--theme-amber);
+  --color-mist: var(--theme-mist);
 
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Source Serif 4", ui-serif, Georgia, serif;
@@ -14,8 +16,8 @@
 
 @layer base {
   :root {
-    color: var(--color-graphite);
-    background-color: var(--color-fog);
+    color: var(--theme-graphite);
+    background-color: var(--theme-fog);
   }
 
   html {
@@ -26,19 +28,22 @@
     margin: 0;
     min-height: 100vh;
     font-family: var(--font-body);
-    background-color: var(--color-fog);
+    background-color: var(--theme-fog);
     background-image:
-      radial-gradient(ellipse 80% 50% at 100% 0%, rgb(53 82 110 / 0.08), transparent),
-      linear-gradient(180deg, #f1f0ec 0%, #ebe9e3 100%);
-    color: var(--color-graphite);
+      radial-gradient(ellipse 80% 50% at 100% 0%, var(--theme-wash), transparent),
+      linear-gradient(180deg, var(--theme-fog) 0%, var(--theme-fog-deep) 100%);
+    color: var(--theme-graphite);
+    transition:
+      background-color 0.35s ease,
+      color 0.35s ease;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--color-steel) 28%, transparent);
+    background: var(--theme-selection);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-steel);
+    outline: 2px solid var(--theme-steel);
     outline-offset: 3px;
   }
 
@@ -49,7 +54,7 @@
   }
 
   a:hover {
-    color: var(--color-steel);
+    color: var(--theme-steel);
   }
 }
 
@@ -136,6 +141,10 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  body {
+    transition: none;
   }
 
   .animate-rise,

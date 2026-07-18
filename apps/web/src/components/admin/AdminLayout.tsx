@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { signOut, useSession } from "../../lib/auth-client";
+import { ThemeSwitcher } from "../ThemeSwitcher";
 
 const nav = [
   { to: "/admin", label: "Dashboard", end: true },
@@ -65,6 +66,7 @@ export function AdminLayout() {
           <NavItems />
         </nav>
         <div className="px-5 py-5 border-t border-mist space-y-3">
+          <ThemeSwitcher menuPlacement="up" />
           <p className="font-mono text-[10px] text-graphite/45 truncate">
             {session?.user?.email}
           </p>
@@ -93,15 +95,18 @@ export function AdminLayout() {
               </p>
               <p className="font-display text-lg font-semibold">Admin</p>
             </div>
-            <button
-              type="button"
-              aria-expanded={open}
-              aria-controls="admin-mobile-nav"
-              onClick={() => setOpen((v) => !v)}
-              className="font-mono text-xs uppercase tracking-[0.12em] text-steel border border-mist px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
-            >
-              {open ? "Close" : "Menu"}
-            </button>
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <button
+                type="button"
+                aria-expanded={open}
+                aria-controls="admin-mobile-nav"
+                onClick={() => setOpen((v) => !v)}
+                className="font-mono text-xs uppercase tracking-[0.12em] text-steel border border-mist px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
+              >
+                {open ? "Close" : "Menu"}
+              </button>
+            </div>
           </div>
           {open ? (
             <nav

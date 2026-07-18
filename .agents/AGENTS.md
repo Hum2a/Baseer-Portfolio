@@ -10,7 +10,7 @@ Marketing CV / portfolio site for Baseer. Single-admin CMS (Better Auth email/pa
 
 ## Stack
 
-- Frontend: React 19 + Vite SPA, Tailwind v4
+- Frontend: React 19 + Vite SPA, Tailwind v4 (theme tokens via `data-theme` + `--theme-*`)
 - API: Hono mounted under `/api` on the same Worker
 - DB: Neon Postgres via Hyperdrive, Drizzle ORM, RLS on every content table
 - Auth: Better Auth email/password, same-origin `/api/auth`, single seeded admin (`ADMIN_EMAIL`)
