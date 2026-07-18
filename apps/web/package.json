@@ -22,8 +22,8 @@
     "better-auth": "^1.2.9",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.2",
+    "motion": "^12.42.2",
     "react": "^19.1.0",
-
     "react-dom": "^19.1.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.6.2",

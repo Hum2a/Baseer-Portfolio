@@ -4,6 +4,7 @@ import type { SiteSettings, Skill, TimelineEntry } from "../lib/types";
 import { Timeline } from "../components/Timeline";
 import { SkillsMatrix } from "../components/SkillsMatrix";
 import { DocumentTitle } from "../components/DocumentTitle";
+import { InteractiveAnchor, Reveal } from "../components/motion";
 
 export function AboutPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -41,29 +42,41 @@ export function AboutPage() {
     <section className="page-pad section-y mx-auto max-w-6xl">
       <DocumentTitle title="About — Baseer" />
       <header className="mb-14 md:mb-20 max-w-2xl">
-        <h1 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
+        <Reveal
+          immediate
+          as="h1"
+          className="font-display text-4xl md:text-5xl font-semibold tracking-tight"
+        >
           About
-        </h1>
-        <p className="mt-5 font-body text-lg text-graphite/80 measure">
+        </Reveal>
+        <Reveal
+          immediate
+          as="p"
+          delay={0.08}
+          className="mt-5 font-body text-lg text-graphite/80 measure"
+        >
           Career path, capabilities, and a downloadable CV.
-        </p>
+        </Reveal>
         {cvUrl ? (
-          <a
-            href={cvUrl}
-            className="mt-8 inline-block bg-steel text-fog px-5 py-2.5 font-mono text-xs uppercase tracking-[0.14em] no-underline hover:bg-graphite"
-          >
-            Download CV
-          </a>
+          <Reveal immediate delay={0.16} className="mt-8" y={8}>
+            <InteractiveAnchor href={cvUrl} variant="primary">
+              Download CV
+            </InteractiveAnchor>
+          </Reveal>
         ) : null}
       </header>
 
       <div className="grid gap-16 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div>
-          <h2 className="font-display text-2xl font-medium tracking-tight mb-8">Timeline</h2>
+          <Reveal as="h2" className="font-display text-2xl font-medium tracking-tight mb-8">
+            Timeline
+          </Reveal>
           <Timeline entries={timeline} />
         </div>
         <div>
-          <h2 className="font-display text-2xl font-medium tracking-tight mb-8">Skills</h2>
+          <Reveal as="h2" className="font-display text-2xl font-medium tracking-tight mb-8">
+            Skills
+          </Reveal>
           <SkillsMatrix skills={skills} />
         </div>
       </div>

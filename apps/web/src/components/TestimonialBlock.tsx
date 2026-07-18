@@ -1,4 +1,5 @@
 import type { Testimonial } from "../lib/types";
+import { Reveal } from "./motion";
 
 type TestimonialBlockProps = {
   testimonial: Testimonial;
@@ -7,10 +8,15 @@ type TestimonialBlockProps = {
 export function TestimonialBlock({ testimonial }: TestimonialBlockProps) {
   return (
     <figure className="max-w-3xl">
-      <blockquote className="font-body text-xl md:text-2xl leading-relaxed text-graphite">
+      <Reveal as="blockquote" className="font-body text-xl md:text-2xl leading-relaxed text-graphite" y={14}>
         “{testimonial.quote}”
-      </blockquote>
-      <figcaption className="mt-6 font-mono text-sm tracking-wide text-graphite/70">
+      </Reveal>
+      <Reveal
+        as="figcaption"
+        delay={0.12}
+        className="mt-6 font-mono text-sm tracking-wide text-graphite/70"
+        y={8}
+      >
         <span className="text-graphite">{testimonial.authorName}</span>
         <span className="text-mist mx-2" aria-hidden="true">
           ·
@@ -18,7 +24,7 @@ export function TestimonialBlock({ testimonial }: TestimonialBlockProps) {
         <span>
           {testimonial.authorRole}, {testimonial.company}
         </span>
-      </figcaption>
+      </Reveal>
     </figure>
   );
 }

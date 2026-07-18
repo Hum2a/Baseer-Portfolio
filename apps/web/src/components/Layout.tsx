@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { SiteHeader } from "./SiteHeader";
 import { SiteFooter } from "./SiteFooter";
+import { PageTransition } from "./motion";
 import { trackPageView } from "../lib/analytics";
 
 export function Layout() {
@@ -16,7 +17,9 @@ export function Layout() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-1">
-        <Outlet />
+        <PageTransition routeKey={location.pathname}>
+          <Outlet />
+        </PageTransition>
       </main>
       <SiteFooter />
     </div>

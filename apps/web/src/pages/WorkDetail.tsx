@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
 import { apiFetch, mediaFileUrl } from "../lib/api-client";
 import type { CaseStudyDetail } from "../lib/types";
 import { SpecStrip } from "../components/SpecStrip";
 import { MarkdownBody } from "../components/MarkdownBody";
 import { DocumentTitle } from "../components/DocumentTitle";
+import { InteractiveLink, Reveal, Stagger, StaggerItem } from "../components/motion";
+
+const ease = [0.22, 1, 0.36, 1] as const;
 
 export function WorkDetailPage() {
+  const reduce = useReducedMotion();
   const { slug } = useParams<{ slug: string }>();
   const [study, setStudy] = useState<CaseStudyDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -34,10 +39,14 @@ export function WorkDetailPage() {
   if (error) {
     return (
       <section className="page-pad section-y mx-auto max-w-3xl">
-        <p className="font-body text-lg">{error}</p>
-        <Link to="/" className="mt-6 inline-block font-mono text-xs uppercase tracking-[0.12em]">
-          Back home
-        </Link>
+        <Reveal as="p" immediate className="font-body text-lg">
+          {error}
+        </Reveal>
+        <div className="mt-6">
+          <InteractiveLink to="/" variant="ghost">
+            Back home
+          </InteractiveLink>
+        </div>
       </section>
     );
   }
@@ -58,25 +67,48 @@ export function WorkDetailPage() {
       <header className="relative">
         {hero ? (
           <div className="w-full max-h-[70vh] overflow-hidden bg-mist/40">
-            <img
+            <motion.img
               src={hero}
               alt=""
-              className="w-full h-full max-h-[70vh] object-cover animate-fade"
+              className="w-full h-full max-h-[70vh] object-cover"
+              initial={reduce ? false : { opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7, ease }}
             />
           </div>
         ) : null}
         <div className="page-pad pt-10 md:pt-14 pb-8 mx-auto max-w-6xl">
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-steel mb-3">
-            <Link to={`/${study.sector}`} className="no-underline capitalize">
+          <Reveal
+            immediate
+            as="p"
+            className="font-mono text-xs uppercase tracking-[0.14em] text-steel mb-3"
+            y={8}
+          >
+            <Link to={`/${study.sector}`} className="link-underline capitalize">
               {study.sector}
             </Link>
-          </p>
-          <h1 className="font-display text-4xl md:text-5xl font-semibold tracking-tight animate-rise">
+          </Reveal>
+          <Reveal
+            immediate
+            as="h1"
+            delay={0.08}
+            className="font-display text-4xl md:text-5xl font-semibold tracking-tight"
+            y={14}
+          >
             {study.title}
-          </h1>
-          <p className="mt-5 font-body text-xl text-graphite/80 measure">{study.dek}</p>
+          </Reveal>
+          <Reveal
+            immediate
+            as="p"
+            delay={0.16}
+            className="mt-5 font-body text-xl text-graphite/80 measure"
+          >
+            {study.dek}
+          </Reveal>
           {study.specMetrics.length > 0 ? (
-            <SpecStrip metrics={study.specMetrics} className="mt-8" />
+            <Reveal immediate delay={0.22} className="mt-8" y={8}>
+              <SpecStrip metrics={study.specMetrics} />
+            </Reveal>
           ) : null}
         </div>
       </header>
@@ -89,32 +121,40 @@ export function WorkDetailPage() {
           { title: "Results", body: study.results },
         ].map((section) =>
           section.body.trim() ? (
-            <section key={section.title}>
+            <Reveal as="section" key={section.title} y={12}>
               <h2 className="font-display text-2xl font-medium tracking-tight mb-4">
                 {section.title}
               </h2>
               <MarkdownBody content={section.body} />
-            </section>
+            </Reveal>
           ) : null,
         )}
 
         {study.gallery.length > 0 ? (
           <section>
-            <h2 className="font-display text-2xl font-medium tracking-tight mb-6">Gallery</h2>
-            <ul className="grid gap-6 md:grid-cols-2">
+            <Reveal as="h2" className="font-display text-2xl font-medium tracking-tight mb-6">
+              Gallery
+            </Reveal>
+            <Stagger as="ul" stagger={0.08} className="grid gap-6 md:grid-cols-2">
               {study.gallery.map((image) => {
                 const src = mediaFileUrl(image.imageKey);
                 if (!src) return null;
                 return (
-                  <li key={image.id}>
-                    <img src={src} alt={image.caption || ""} className="w-full object-cover" />
+                  <StaggerItem key={image.id} as="li" y={12}>
+                    <motion.img
+                      src={src}
+                      alt={image.caption || ""}
+                      className="w-full object-cover"
+                      whileHover={reduce ? undefined : { scale: 1.015 }}
+                      transition={{ duration: 0.45, ease }}
+                    />
                     {image.caption ? (
                       <p className="mt-2 font-mono text-xs text-graphite/60">{image.caption}</p>
                     ) : null}
-                  </li>
+                  </StaggerItem>
                 );
               })}
-            </ul>
+            </Stagger>
           </section>
         ) : null}
       </div>
