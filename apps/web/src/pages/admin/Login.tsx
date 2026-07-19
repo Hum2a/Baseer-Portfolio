@@ -14,6 +14,7 @@ export function AdminLoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -78,19 +79,34 @@ export function AdminLoginPage() {
                 className="w-full border border-mist bg-fog/80 px-3 py-2.5 font-body focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
               />
             </label>
-            <label className="block space-y-1.5">
-              <span className="font-mono text-xs uppercase tracking-[0.12em] text-steel">
+            <div className="block space-y-1.5">
+              <label
+                htmlFor="admin-password"
+                className="font-mono text-xs uppercase tracking-[0.12em] text-steel"
+              >
                 Password
-              </span>
-              <input
-                type="password"
-                required
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full border border-mist bg-fog/80 px-3 py-2.5 font-body focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
-              />
-            </label>
+              </label>
+              <div className="relative">
+                <input
+                  id="admin-password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full border border-mist bg-fog/80 px-3 py-2.5 pr-20 font-body focus:outline-none focus-visible:ring-2 focus-visible:ring-steel"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-0 px-3 font-mono text-[10px] uppercase tracking-[0.12em] text-graphite/55 hover:text-steel focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-steel"
+                  aria-pressed={showPassword}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
 
             {error ? (
               <p className="font-mono text-sm text-amber" role="alert">
