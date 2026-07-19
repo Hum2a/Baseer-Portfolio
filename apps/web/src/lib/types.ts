@@ -1,4 +1,12 @@
-import type { Sector, SpecMetric, SocialLinks } from "@baseer-portfolio/shared";
+import type {
+  FooterLink,
+  NavLink,
+  Sector,
+  SpecMetric,
+  SocialLinks,
+  BlockType,
+  PageKey,
+} from "@baseer-portfolio/shared";
 
 export type CaseStudy = {
   id: string;
@@ -15,6 +23,11 @@ export type CaseStudy = {
   specMetrics: SpecMetric[];
   published: boolean;
   displayOrder: number;
+  showChallenge?: boolean;
+  showStrategy?: boolean;
+  showExecution?: boolean;
+  showResults?: boolean;
+  showGallery?: boolean;
   createdAt: string;
   updatedAt: string;
 };
@@ -68,6 +81,48 @@ export type SiteSettings = {
   introSubhead: string;
   contactEmail: string;
   socialLinks: SocialLinks;
+  siteName: string;
+  tagline: string;
+  defaultThemeId: string;
+  allowVisitorThemes: boolean;
+  navLinks: NavLink[];
+  footerBlurb: string;
+  footerLinks: FooterLink[];
+  seoTitleSuffix: string;
+  defaultMetaDescription: string;
+  faviconKey: string | null;
+  ogImageKey: string | null;
+  aboutBio: string;
+};
+
+export type SectorRecord = {
+  id: string;
+  ownerId: string;
+  slug: Sector;
+  label: string;
+  intro: string;
+  heroImageKey: string | null;
+  displayOrder: number;
+  published: boolean;
+};
+
+export type PageBlock = {
+  id: string;
+  ownerId: string;
+  pageId: string;
+  type: BlockType | string;
+  config: Record<string, unknown>;
+  displayOrder: number;
+  enabled: boolean;
+};
+
+export type CmsPage = {
+  id: string | null;
+  key: PageKey | string;
+  title: string | null;
+  published: boolean;
+  blocks: PageBlock[];
+  fallback?: boolean;
 };
 
 export type Reorderable = { id: string };

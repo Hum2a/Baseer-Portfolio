@@ -18,7 +18,13 @@ import {
 import { AdminTestimonialsPage } from "./pages/admin/TestimonialsAdmin";
 import { AdminSkillsPage } from "./pages/admin/SkillsAdmin";
 import { AdminTimelinePage } from "./pages/admin/TimelineAdmin";
-import { AdminSettingsPage } from "./pages/admin/SettingsAdmin";
+import { AdminSitePage } from "./pages/admin/SiteAdmin";
+import { AdminNavPage } from "./pages/admin/NavAdmin";
+import {
+  AdminPageEditorPage,
+  AdminPagesListPage,
+} from "./pages/admin/PagesAdmin";
+import { AdminSectorsPage } from "./pages/admin/SectorsAdmin";
 
 export function App() {
   return (
@@ -46,13 +52,18 @@ export function App() {
         >
           <Route index element={<AdminDashboardPage />} />
           <Route path="analytics" element={<AdminAnalyticsPage />} />
+          <Route path="site" element={<AdminSitePage />} />
+          <Route path="navigation" element={<AdminNavPage />} />
+          <Route path="pages" element={<AdminPagesListPage />} />
+          <Route path="pages/:key" element={<AdminPageEditorPage />} />
+          <Route path="sectors" element={<AdminSectorsPage />} />
           <Route path="case-studies" element={<AdminCaseStudiesListPage />} />
           <Route path="case-studies/new" element={<AdminCaseStudyNewPage />} />
           <Route path="case-studies/:id" element={<AdminCaseStudyEditPage />} />
           <Route path="testimonials" element={<AdminTestimonialsPage />} />
           <Route path="skills" element={<AdminSkillsPage />} />
           <Route path="timeline" element={<AdminTimelinePage />} />
-          <Route path="settings" element={<AdminSettingsPage />} />
+          <Route path="settings" element={<Navigate to="/admin/site" replace />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

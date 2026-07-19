@@ -135,6 +135,11 @@ caseStudiesRoutes.post("/admin", async (c) => {
           specMetrics: body.specMetrics,
           published: body.published,
           displayOrder: body.displayOrder ?? 0,
+          showChallenge: body.showChallenge ?? true,
+          showStrategy: body.showStrategy ?? true,
+          showExecution: body.showExecution ?? true,
+          showResults: body.showResults ?? true,
+          showGallery: body.showGallery ?? true,
           updatedAt: new Date(),
         })
         .returning();
@@ -167,6 +172,11 @@ caseStudiesRoutes.put("/admin/:id", async (c) => {
           specMetrics: body.specMetrics,
           published: body.published,
           displayOrder: body.displayOrder ?? 0,
+          showChallenge: body.showChallenge ?? true,
+          showStrategy: body.showStrategy ?? true,
+          showExecution: body.showExecution ?? true,
+          showResults: body.showResults ?? true,
+          showGallery: body.showGallery ?? true,
           updatedAt: new Date(),
         })
         .where(eq(caseStudies.id, id))

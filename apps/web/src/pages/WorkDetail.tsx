@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
 import { apiFetch, mediaFileUrl } from "../lib/api-client";
-import type { CaseStudyDetail } from "../lib/types";
+import type { CaseStudyDetail, Testimonial } from "../lib/types";
 import { SpecStrip } from "../components/SpecStrip";
 import { MarkdownBody } from "../components/MarkdownBody";
 import { DocumentTitle } from "../components/DocumentTitle";
+import { TestimonialBlock } from "../components/TestimonialBlock";
 import { InteractiveLink, Reveal, Stagger, StaggerItem } from "../components/motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -14,6 +15,7 @@ export function WorkDetailPage() {
   const reduce = useReducedMotion();
   const { slug } = useParams<{ slug: string }>();
   const [study, setStudy] = useState<CaseStudyDetail | null>(null);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,10 +23,17 @@ export function WorkDetailPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const row = await apiFetch<CaseStudyDetail>(
-          `/case-studies/public/${encodeURIComponent(slug)}`,
+        const [row, allTestimonials] = await Promise.all([
+          apiFetch<CaseStudyDetail>(
+            `/case-studies/public/${encodeURIComponent(slug)}`,
+          ),
+          apiFetch<Testimonial[]>("/testimonials/public"),
+        ]);
+        if (cancelled) return;
+        setStudy(row);
+        setTestimonials(
+          allTestimonials.filter((t) => t.caseStudyId === row.id),
         );
-        if (!cancelled) setStudy(row);
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof Error ? err.message : "Not found");
@@ -60,10 +69,32 @@ export function WorkDetailPage() {
   }
 
   const hero = mediaFileUrl(study.heroImageKey);
+  const sections = [
+    {
+      title: "Challenge",
+      body: study.challenge,
+      show: study.showChallenge !== false,
+    },
+    {
+      title: "Strategy",
+      body: study.strategy,
+      show: study.showStrategy !== false,
+    },
+    {
+      title: "Execution",
+      body: study.execution,
+      show: study.showExecution !== false,
+    },
+    {
+      title: "Results",
+      body: study.results,
+      show: study.showResults !== false,
+    },
+  ];
 
   return (
     <article>
-      <DocumentTitle title={`${study.title} — Baseer`} />
+      <DocumentTitle title={study.title} />
       <header className="relative">
         {hero ? (
           <div className="w-full max-h-[70vh] overflow-hidden bg-mist/40">
@@ -114,13 +145,8 @@ export function WorkDetailPage() {
       </header>
 
       <div className="page-pad pb-20 mx-auto max-w-6xl space-y-14">
-        {[
-          { title: "Challenge", body: study.challenge },
-          { title: "Strategy", body: study.strategy },
-          { title: "Execution", body: study.execution },
-          { title: "Results", body: study.results },
-        ].map((section) =>
-          section.body.trim() ? (
+        {sections.map((section) =>
+          section.show && section.body.trim() ? (
             <Reveal as="section" key={section.title} y={12}>
               <h2 className="font-display text-2xl font-medium tracking-tight mb-4">
                 {section.title}
@@ -130,7 +156,7 @@ export function WorkDetailPage() {
           ) : null,
         )}
 
-        {study.gallery.length > 0 ? (
+        {study.showGallery !== false && study.gallery.length > 0 ? (
           <section>
             <Reveal as="h2" className="font-display text-2xl font-medium tracking-tight mb-6">
               Gallery
@@ -155,6 +181,17 @@ export function WorkDetailPage() {
                 );
               })}
             </Stagger>
+          </section>
+        ) : null}
+
+        {testimonials.length > 0 ? (
+          <section className="space-y-10">
+            <Reveal as="h2" className="font-display text-2xl font-medium tracking-tight">
+              Testimonials
+            </Reveal>
+            {testimonials.map((t) => (
+              <TestimonialBlock key={t.id} testimonial={t} />
+            ))}
           </section>
         ) : null}
       </div>

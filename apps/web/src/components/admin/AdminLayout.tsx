@@ -7,11 +7,14 @@ import { ThemeSwitcher } from "../ThemeSwitcher";
 const nav = [
   { to: "/admin", label: "Dashboard", end: true },
   { to: "/admin/analytics", label: "Analytics" },
+  { to: "/admin/site", label: "Site" },
+  { to: "/admin/navigation", label: "Navigation" },
+  { to: "/admin/pages", label: "Pages" },
+  { to: "/admin/sectors", label: "Sectors" },
   { to: "/admin/case-studies", label: "Case studies" },
   { to: "/admin/testimonials", label: "Testimonials" },
   { to: "/admin/skills", label: "Skills" },
   { to: "/admin/timeline", label: "Timeline" },
-  { to: "/admin/settings", label: "Settings" },
 ];
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {

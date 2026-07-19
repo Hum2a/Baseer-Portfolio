@@ -40,3 +40,25 @@ test("login page signs in and reaches dashboard", async ({ page }) => {
     timeout: 15_000,
   });
 });
+
+test("admin page editor opens Home builder", async ({ page }) => {
+  const email = process.env.ADMIN_EMAIL ?? "baseer@baseer.co.uk";
+  const password = process.env.ADMIN_PASSWORD ?? "changeme-baseer-admin";
+
+  await page.goto("/admin/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible({
+    timeout: 15_000,
+  });
+
+  await page.goto("/admin/pages");
+  await expect(page.getByRole("heading", { name: "Pages" })).toBeVisible();
+  await page.getByRole("link", { name: "Edit" }).first().click();
+  await expect(page.getByRole("heading", { name: "Home" })).toBeVisible({
+    timeout: 15_000,
+  });
+  await expect(page.getByRole("button", { name: "Save page" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Preview" })).toBeVisible();
+});

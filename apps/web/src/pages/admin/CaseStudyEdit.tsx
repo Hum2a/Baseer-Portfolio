@@ -71,6 +71,11 @@ export function AdminCaseStudyEditPage() {
     specMetrics: study.specMetrics,
     published: study.published,
     displayOrder: study.displayOrder,
+    showChallenge: study.showChallenge ?? true,
+    showStrategy: study.showStrategy ?? true,
+    showExecution: study.showExecution ?? true,
+    showResults: study.showResults ?? true,
+    showGallery: study.showGallery ?? true,
   };
 
   async function addGalleryImage(key: string) {

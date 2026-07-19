@@ -27,6 +27,11 @@ const empty: CaseStudyInput = {
   results: "",
   specMetrics: [],
   published: false,
+  showChallenge: true,
+  showStrategy: true,
+  showExecution: true,
+  showResults: true,
+  showGallery: true,
 };
 
 export function CaseStudyForm({
@@ -140,6 +145,30 @@ export function CaseStudyForm({
         onUploaded={(key) => update("heroImageKey", key)}
         onClear={() => update("heroImageKey", null)}
       />
+
+      <fieldset className="space-y-3">
+        <legend className="font-mono text-xs uppercase tracking-[0.12em] text-steel">
+          Section visibility
+        </legend>
+        {(
+          [
+            ["showChallenge", "Challenge"],
+            ["showStrategy", "Strategy"],
+            ["showExecution", "Execution"],
+            ["showResults", "Results"],
+            ["showGallery", "Gallery"],
+          ] as const
+        ).map(([key, label]) => (
+          <label key={key} className="flex items-center gap-2 font-mono text-xs uppercase">
+            <input
+              type="checkbox"
+              checked={form[key] !== false}
+              onChange={(e) => update(key, e.target.checked)}
+            />
+            Show {label}
+          </label>
+        ))}
+      </fieldset>
 
       <MarkdownEditor
         label="Challenge"

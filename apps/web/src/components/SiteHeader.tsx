@@ -2,19 +2,16 @@ import { NavLink } from "react-router-dom";
 import { motion, useReducedMotion } from "motion/react";
 import clsx from "clsx";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-
-const links = [
-  { to: "/automotive", label: "Automotive" },
-  { to: "/charity", label: "Charity" },
-  { to: "/education", label: "Education" },
-  { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
-];
+import { useSiteSettingsOrFallback } from "../lib/site-settings";
+import { useTheme } from "../themes/ThemeProvider";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
 export function SiteHeader() {
   const reduce = useReducedMotion();
+  const settings = useSiteSettingsOrFallback();
+  const { allowVisitorThemes } = useTheme();
+  const links = (settings.navLinks ?? []).filter((l) => l.visible !== false);
 
   return (
     <motion.header
@@ -28,14 +25,14 @@ export function SiteHeader() {
           to="/"
           className="font-display text-2xl md:text-3xl font-semibold tracking-tight no-underline transition-theme hover:opacity-80"
         >
-          Baseer
+          {settings.siteName || "Baseer"}
         </NavLink>
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
           <nav aria-label="Primary" className="flex flex-wrap gap-x-5 gap-y-2">
             {links.map((link) => (
               <NavLink
-                key={link.to}
-                to={link.to}
+                key={link.id}
+                to={link.href}
                 className={({ isActive }) =>
                   clsx(
                     "nav-link font-mono text-xs uppercase tracking-[0.12em]",
@@ -47,7 +44,7 @@ export function SiteHeader() {
               </NavLink>
             ))}
           </nav>
-          <ThemeSwitcher />
+          {allowVisitorThemes ? <ThemeSwitcher /> : null}
         </div>
       </div>
       <motion.div

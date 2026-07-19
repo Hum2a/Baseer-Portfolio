@@ -4,7 +4,13 @@ import { drizzle } from "drizzle-orm/neon-serverless";
 import { hashPassword } from "better-auth/crypto";
 import { loadEnv } from "./load-env";
 import * as schema from "./schema";
-import type { Sector, SpecMetric } from "@baseer-portfolio/shared";
+import {
+  DEFAULT_FOOTER_LINKS,
+  DEFAULT_NAV_LINKS,
+  type Sector,
+  type SpecMetric,
+} from "@baseer-portfolio/shared";
+import { DEFAULT_PAGE_BLOCKS, PAGE_TITLES } from "../lib/default-pages";
 
 loadEnv();
 
@@ -155,6 +161,113 @@ async function ensureAdminCredentials(
   }
 }
 
+async function ensureCmsShell(
+  db: ReturnType<typeof drizzle<typeof schema>>,
+  ownerId: string,
+  email: string,
+) {
+  const [settings] = await db.select().from(schema.siteSettings).limit(1);
+  if (settings) {
+    await db
+      .update(schema.siteSettings)
+      .set({
+        siteName: settings.siteName || "Baseer",
+        tagline: settings.tagline || "Marketing portfolio",
+        defaultThemeId: settings.defaultThemeId || "light",
+        navLinks: settings.navLinks?.length ? settings.navLinks : DEFAULT_NAV_LINKS,
+        footerLinks: settings.footerLinks?.length
+          ? settings.footerLinks
+          : DEFAULT_FOOTER_LINKS,
+        footerBlurb: settings.footerBlurb || "Baseer · Marketing portfolio",
+        seoTitleSuffix: settings.seoTitleSuffix || "Baseer",
+        defaultMetaDescription:
+          settings.defaultMetaDescription ||
+          "Marketing portfolio across automotive, charity, and education.",
+      })
+      .where(eq(schema.siteSettings.id, settings.id));
+  } else {
+    await db.insert(schema.siteSettings).values({
+      ownerId,
+      introHeadline: "Marketing that moves the needle",
+      introSubhead:
+        "[PLACEHOLDER — replace with real copy] Campaigns and launches across automotive, charity, and education — measured like a spec sheet.",
+      contactEmail: email,
+      socialLinks: { linkedin: "https://www.linkedin.com/" },
+      siteName: "Baseer",
+      tagline: "Marketing portfolio",
+      defaultThemeId: "light",
+      allowVisitorThemes: true,
+      navLinks: DEFAULT_NAV_LINKS,
+      footerBlurb: "Baseer · Marketing portfolio",
+      footerLinks: DEFAULT_FOOTER_LINKS,
+      seoTitleSuffix: "Baseer",
+      defaultMetaDescription:
+        "Marketing portfolio across automotive, charity, and education.",
+      aboutBio:
+        "[PLACEHOLDER — replace with real copy]\n\nA short bio will appear here once edited in Site settings.",
+    });
+  }
+
+  const existingSectors = await db.select().from(schema.sectorsTable).limit(1);
+  if (existingSectors.length === 0) {
+    await db.insert(schema.sectorsTable).values([
+      {
+        ownerId,
+        slug: "automotive",
+        label: "Automotive",
+        intro: "Launches, retail theatre, and product storytelling.",
+        displayOrder: 0,
+        published: true,
+      },
+      {
+        ownerId,
+        slug: "charity",
+        label: "Charity",
+        intro: "Cause campaigns with measurable public response.",
+        displayOrder: 1,
+        published: true,
+      },
+      {
+        ownerId,
+        slug: "education",
+        label: "Education",
+        intro: "Enrolment, reputation, and student-facing narratives.",
+        displayOrder: 2,
+        published: true,
+      },
+    ]);
+  }
+
+  for (const [key, blocks] of Object.entries(DEFAULT_PAGE_BLOCKS)) {
+    const [existingPage] = await db
+      .select()
+      .from(schema.pages)
+      .where(eq(schema.pages.key, key))
+      .limit(1);
+    if (existingPage) continue;
+    const [page] = await db
+      .insert(schema.pages)
+      .values({
+        ownerId,
+        key,
+        title: PAGE_TITLES[key as keyof typeof PAGE_TITLES],
+        published: true,
+      })
+      .returning();
+    if (!page || blocks.length === 0) continue;
+    await db.insert(schema.pageBlocks).values(
+      blocks.map((block, i) => ({
+        ownerId,
+        pageId: page.id,
+        type: block.type,
+        config: block.config,
+        displayOrder: i,
+        enabled: block.enabled ?? true,
+      })),
+    );
+  }
+}
+
 async function main() {
   const pool = new Pool({ connectionString: databaseUrl, max: 1 });
   const db = drizzle(pool, { schema });
@@ -164,7 +277,8 @@ async function main() {
 
     const existingCases = await db.select().from(schema.caseStudies).limit(1);
     if (existingCases.length > 0) {
-      console.log("Content already seeded — skipping case studies / related rows.");
+      console.log("Content already seeded — ensuring CMS shell rows if missing.");
+      await ensureCmsShell(db, adminId, adminEmail);
       return;
     }
 
@@ -294,7 +408,69 @@ async function main() {
       socialLinks: {
         linkedin: "https://www.linkedin.com/",
       },
+      siteName: "Baseer",
+      tagline: "Marketing portfolio",
+      defaultThemeId: "light",
+      allowVisitorThemes: true,
+      navLinks: DEFAULT_NAV_LINKS,
+      footerBlurb: "Baseer · Marketing portfolio",
+      footerLinks: DEFAULT_FOOTER_LINKS,
+      seoTitleSuffix: "Baseer",
+      defaultMetaDescription:
+        "Marketing portfolio across automotive, charity, and education.",
+      aboutBio:
+        "[PLACEHOLDER — replace with real copy]\n\nA short bio will appear here once edited in Site settings.",
     });
+
+    await db.insert(schema.sectorsTable).values([
+      {
+        ownerId: adminId,
+        slug: "automotive",
+        label: "Automotive",
+        intro: "Launches, retail theatre, and product storytelling.",
+        displayOrder: 0,
+        published: true,
+      },
+      {
+        ownerId: adminId,
+        slug: "charity",
+        label: "Charity",
+        intro: "Cause campaigns with measurable public response.",
+        displayOrder: 1,
+        published: true,
+      },
+      {
+        ownerId: adminId,
+        slug: "education",
+        label: "Education",
+        intro: "Enrolment, reputation, and student-facing narratives.",
+        displayOrder: 2,
+        published: true,
+      },
+    ]);
+
+    for (const [key, blocks] of Object.entries(DEFAULT_PAGE_BLOCKS)) {
+      const [page] = await db
+        .insert(schema.pages)
+        .values({
+          ownerId: adminId,
+          key,
+          title: PAGE_TITLES[key as keyof typeof PAGE_TITLES],
+          published: true,
+        })
+        .returning();
+      if (!page || blocks.length === 0) continue;
+      await db.insert(schema.pageBlocks).values(
+        blocks.map((block, i) => ({
+          ownerId: adminId,
+          pageId: page.id,
+          type: block.type,
+          config: block.config,
+          displayOrder: i,
+          enabled: block.enabled ?? true,
+        })),
+      );
+    }
 
     console.log("Seed complete.");
   } finally {

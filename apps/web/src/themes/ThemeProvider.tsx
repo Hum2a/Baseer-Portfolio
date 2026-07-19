@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useSiteSettings } from "../lib/site-settings";
 import {
   DEFAULT_THEME_ID,
   THEME_STORAGE_KEY,
@@ -21,6 +22,9 @@ type ThemeContextValue = {
   theme: ThemeMeta;
   themes: ThemeMeta[];
   setThemeId: (id: string) => void;
+  allowVisitorThemes: boolean;
+  siteDefaultThemeId: string;
+  resetToSiteDefault: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -33,31 +37,74 @@ function applyTheme(id: string) {
   }
 }
 
-function readStoredTheme(): string {
+function readStoredTheme(): string | null {
   try {
     const stored = localStorage.getItem(THEME_STORAGE_KEY);
     if (isThemeId(stored)) return stored;
   } catch {
     /* ignore */
   }
-  const attr = document.documentElement.getAttribute("data-theme");
-  if (isThemeId(attr)) return attr;
-  return DEFAULT_THEME_ID;
+  return null;
+}
+
+function isAdminPath() {
+  return typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeId, setThemeIdState] = useState(readStoredTheme);
+  const { settings } = useSiteSettings();
+  const siteDefault = isThemeId(settings?.defaultThemeId)
+    ? settings!.defaultThemeId
+    : DEFAULT_THEME_ID;
+  const allowVisitorThemes = settings?.allowVisitorThemes ?? true;
 
-  const setThemeId = useCallback((id: string) => {
-    const next = isThemeId(id) ? id : DEFAULT_THEME_ID;
-    setThemeIdState(next);
-    applyTheme(next);
+  const [themeId, setThemeIdState] = useState(() => {
+    const stored = readStoredTheme();
+    if (stored) return stored;
+    const attr = document.documentElement.getAttribute("data-theme");
+    if (isThemeId(attr)) return attr;
+    return DEFAULT_THEME_ID;
+  });
+  const [visitorOverride, setVisitorOverride] = useState(() => Boolean(readStoredTheme()));
+
+  useEffect(() => {
+    if (!settings) return;
+    if (!allowVisitorThemes && !isAdminPath()) {
+      setThemeIdState(siteDefault);
+      applyTheme(siteDefault);
+      return;
+    }
+    if (!visitorOverride) {
+      setThemeIdState(siteDefault);
+      applyTheme(siteDefault);
+    }
+  }, [settings, siteDefault, allowVisitorThemes, visitorOverride]);
+
+  const setThemeId = useCallback(
+    (id: string) => {
+      const next = isThemeId(id) ? id : siteDefault;
+      setThemeIdState(next);
+      setVisitorOverride(true);
+      applyTheme(next);
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, next);
+      } catch {
+        /* ignore */
+      }
+    },
+    [siteDefault],
+  );
+
+  const resetToSiteDefault = useCallback(() => {
+    setVisitorOverride(false);
+    setThemeIdState(siteDefault);
+    applyTheme(siteDefault);
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
+      localStorage.removeItem(THEME_STORAGE_KEY);
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [siteDefault]);
 
   useEffect(() => {
     applyTheme(themeId);
@@ -69,8 +116,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       theme: getTheme(themeId),
       themes,
       setThemeId,
+      allowVisitorThemes,
+      siteDefaultThemeId: siteDefault,
+      resetToSiteDefault,
     }),
-    [themeId, setThemeId],
+    [themeId, setThemeId, allowVisitorThemes, siteDefault, resetToSiteDefault],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

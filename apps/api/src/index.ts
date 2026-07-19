@@ -8,6 +8,8 @@ import { timelineRoutes } from "./routes/timeline";
 import { settingsRoutes } from "./routes/settings";
 import { mediaRoutes } from "./routes/media";
 import { analyticsRoutes } from "./routes/analytics";
+import { pagesRoutes } from "./routes/pages";
+import { sectorsRoutes } from "./routes/sectors";
 
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -47,6 +49,8 @@ export function createApp() {
   app.route("/api/settings", settingsRoutes);
   app.route("/api/media", mediaRoutes);
   app.route("/api/analytics", analyticsRoutes);
+  app.route("/api/pages", pagesRoutes);
+  app.route("/api/sectors", sectorsRoutes);
 
   return app;
 }

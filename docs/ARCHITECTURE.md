@@ -34,6 +34,18 @@ Better Auth (email/password) at `/api/auth`, same origin. Sign-up disabled. Sing
 
 Client `trackPageView` on public route changes → `POST /api/analytics/beacon`. Admin summary at `GET /api/analytics/admin/summary?range=7d|30d|90d`.
 
+## Headless CMS / page builder
+
+Admin-owned site chrome and page composition (no third-party CMS):
+
+- **`site_settings`** — brand, SEO, default theme (`defaultThemeId`), visitor theme toggle, nav/footer JSON, about bio, contact/CV
+- **`sectors`** — slug/label/intro metadata for automotive/charity/education
+- **`pages` + `page_blocks`** — ordered, toggleable blocks (`hero`, `spec_strip`, `sector_grid`, …) per page key (`home`, `about`, `contact`, `sector:{slug}`, `work`)
+- Public SPA loads `/api/pages/public/:key` and renders via `BlockRenderer`; empty DB falls back to seeded defaults
+- Theme: admin default applies when localStorage has no override; if `allowVisitorThemes` is false, public `ThemeSwitcher` is hidden and the site default is forced
+
+Admin areas: Site, Navigation, Pages, Sectors (plus existing case studies / testimonials / skills / timeline / analytics).
+
 ## Media
 
 Cloudflare R2 binding `MEDIA`. Uploads via validated presigned PUT (or Worker proxy when R2 S3 credentials are absent). Presign/proxy require an admin session.
