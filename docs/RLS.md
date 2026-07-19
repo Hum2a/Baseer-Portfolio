@@ -19,7 +19,9 @@ Admin handlers call `withOwnerRls(db, session.user.id, fn)` (via `requireAdmin` 
 
 1. `set_config('request.jwt.claims', …)`
 2. `set_config('request.jwt.claim.sub', userId, true)`
-3. `SET LOCAL ROLE authenticated` (best-effort)
+3. `SET LOCAL ROLE authenticated` inside a **savepoint** (so permission failures do not abort the transaction)
+
+Migration `0004_rls_role_grant.sql` grants `authenticated` to the connecting role when possible so step 3 succeeds and RLS policies apply.
 
 The Better Auth user id must equal content `owner_id` (seed uses `OWNER_ID`, default `seed-user-baseer`).
 

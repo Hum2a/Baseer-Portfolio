@@ -19,7 +19,12 @@ export function createApp() {
     if (err instanceof Error && err.name === "ZodError") {
       return c.json({ error: "Validation failed", details: err.message }, 400);
     }
-    return c.json({ error: err instanceof Error ? err.message : "Server error" }, 500);
+    const raw = err instanceof Error ? err.message : "Server error";
+    // Drizzle wraps Postgres failures as "Failed query: …" — don't surface SQL to the UI.
+    const message = raw.startsWith("Failed query:")
+      ? "Database request failed"
+      : raw;
+    return c.json({ error: message }, 500);
   });
 
   app.get("/api/health", (c) => c.json({ ok: true }));

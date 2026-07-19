@@ -87,7 +87,13 @@ describe.runIf(hasDb)("RLS isolation (live DB)", () => {
         await tx.execute(
           sql`SELECT set_config('request.jwt.claim.sub', ${userA}, true)`,
         );
-        await tx.execute(sql`SET LOCAL ROLE authenticated`).catch(() => undefined);
+        await tx.execute(sql`SAVEPOINT before_set_role`);
+        try {
+          await tx.execute(sql`SET LOCAL ROLE authenticated`);
+          await tx.execute(sql`RELEASE SAVEPOINT before_set_role`);
+        } catch {
+          await tx.execute(sql`ROLLBACK TO SAVEPOINT before_set_role`);
+        }
         return tx
           .select()
           .from(schema.caseStudies)

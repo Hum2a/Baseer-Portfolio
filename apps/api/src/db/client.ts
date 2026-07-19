@@ -25,7 +25,14 @@ export function createDb(env: Env): { db: Database; pool: Pool } {
   return { db, pool };
 }
 
-/** Map session user id → auth.user_id() for Neon RLS. */
+/**
+ * Map session user id → auth.user_id() for Neon RLS.
+ *
+ * `SET LOCAL ROLE authenticated` is required for RLS policies to apply, but
+ * some Neon roles lack membership. A failed SET ROLE aborts the whole Postgres
+ * transaction — so we isolate it behind a savepoint and continue as table owner
+ * (JWT claims still set for auth.user_id() when FORCE RLS is not on).
+ */
 export async function withOwnerRls<T>(
   db: Database,
   ownerId: string,
@@ -37,7 +44,13 @@ export async function withOwnerRls<T>(
     await tx.execute(
       sql`SELECT set_config('request.jwt.claim.sub', ${ownerId}, true)`,
     );
-    await tx.execute(sql`SET LOCAL ROLE authenticated`).catch(() => undefined);
+    await tx.execute(sql`SAVEPOINT before_set_role`);
+    try {
+      await tx.execute(sql`SET LOCAL ROLE authenticated`);
+      await tx.execute(sql`RELEASE SAVEPOINT before_set_role`);
+    } catch {
+      await tx.execute(sql`ROLLBACK TO SAVEPOINT before_set_role`);
+    }
     return fn(tx as unknown as Database);
   });
 }
