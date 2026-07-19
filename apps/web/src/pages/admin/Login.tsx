@@ -29,7 +29,14 @@ export function AdminLoginPage() {
     try {
       const result = await signIn.email({ email, password });
       if (result.error) {
-        setError(result.error.message ?? "Sign-in failed");
+        const detail =
+          typeof result.error === "object" &&
+          result.error &&
+          "message" in result.error &&
+          typeof result.error.message === "string"
+            ? result.error.message
+            : "Sign-in failed";
+        setError(detail);
         return;
       }
       navigate(from, { replace: true });

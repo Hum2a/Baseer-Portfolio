@@ -9,8 +9,9 @@ import {
   sessionRelations,
   accountRelations,
 } from "../db/schema";
-import { createDb } from "../db/client";
+import { createDb, type Database } from "../db/client";
 import type { Env } from "../env";
+import type { Pool } from "@neondatabase/serverless";
 
 function trustedOrigins(appUrl: string): string[] {
   const origins = new Set<string>([appUrl.replace(/\/$/, "")]);
@@ -23,12 +24,13 @@ function trustedOrigins(appUrl: string): string[] {
   return [...origins];
 }
 
-/**
- * Canonical Better Auth wiring — factory only (Workers expose env per request).
- * Sign-up disabled; only the seeded admin can sign in.
- */
-export function createAuth(env: Env) {
-  const { db } = createDb(env);
+function buildAuth(env: Env, db: Database) {
+  if (!env.BETTER_AUTH_SECRET) {
+    throw new Error("BETTER_AUTH_SECRET is not configured");
+  }
+  if (!env.APP_URL) {
+    throw new Error("APP_URL is not configured");
+  }
 
   return betterAuth({
     appName: "Baseer Portfolio",
@@ -61,4 +63,22 @@ export function createAuth(env: Env) {
   });
 }
 
-export type Auth = ReturnType<typeof createAuth>;
+/**
+ * Canonical Better Auth wiring — factory only (Workers expose env per request).
+ * Sign-up disabled; only the seeded admin can sign in.
+ */
+export function createAuth(env: Env) {
+  const { db } = createDb(env);
+  return buildAuth(env, db);
+}
+
+/** Prefer this in request handlers so the Neon pool is always closed. */
+export function createAuthSession(env: Env): {
+  auth: ReturnType<typeof buildAuth>;
+  pool: Pool;
+} {
+  const { db, pool } = createDb(env);
+  return { auth: buildAuth(env, db), pool };
+}
+
+export type Auth = ReturnType<typeof buildAuth>;

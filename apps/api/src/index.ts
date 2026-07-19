@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import type { AppVariables, Env } from "./env";
-import { createAuth } from "./lib/auth";
+import { createAuthSession } from "./lib/auth";
 import { caseStudiesRoutes } from "./routes/case-studies";
 import { testimonialsRoutes } from "./routes/testimonials";
 import { skillsRoutes } from "./routes/skills";
@@ -22,9 +22,22 @@ export function createApp() {
 
   app.get("/api/health", (c) => c.json({ ok: true }));
 
-  app.on(["POST", "GET"], "/api/auth/*", (c) => {
-    const auth = createAuth(c.env);
-    return auth.handler(c.req.raw);
+  app.on(["POST", "GET"], "/api/auth/*", async (c) => {
+    const { auth, pool } = createAuthSession(c.env);
+    try {
+      return await auth.handler(c.req.raw);
+    } catch (err) {
+      console.error("auth handler error", err);
+      return c.json(
+        {
+          error: "Auth failed",
+          message: err instanceof Error ? err.message : "Server error",
+        },
+        500,
+      );
+    } finally {
+      await pool.end().catch(() => undefined);
+    }
   });
 
   app.route("/api/case-studies", caseStudiesRoutes);

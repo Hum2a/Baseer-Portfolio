@@ -6,6 +6,7 @@ import * as schema from "./schema";
 
 export type Database = NeonDatabase<typeof schema>;
 
+// Keep WebSocket Pool (needed for RLS transactions). Avoid sticky client reuse.
 neonConfig.poolQueryViaFetch = false;
 
 function connectionString(env: Env): string {
@@ -15,7 +16,11 @@ function connectionString(env: Env): string {
 }
 
 export function createDb(env: Env): { db: Database; pool: Pool } {
-  const pool = new Pool({ connectionString: connectionString(env), max: 1 });
+  const pool = new Pool({
+    connectionString: connectionString(env),
+    max: 1,
+    maxUses: 1,
+  });
   const db = drizzle(pool, { schema });
   return { db, pool };
 }
