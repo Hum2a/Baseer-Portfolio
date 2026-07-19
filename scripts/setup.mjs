@@ -115,6 +115,11 @@ devVars.APP_URL = env.APP_URL === "http://localhost:5173" ? "http://localhost:87
 devVars.BETTER_AUTH_SECRET = authSecret;
 devVars.ADMIN_EMAIL = env.ADMIN_EMAIL;
 devVars.ADMIN_PASSWORD = adminPassword;
+if (env.RESEND_API_KEY) {
+  devVars.RESEND_API_KEY = env.RESEND_API_KEY;
+} else if (devVars.RESEND_API_KEY) {
+  env.RESEND_API_KEY = devVars.RESEND_API_KEY;
+}
 
 writeFileSync(
   envPath,

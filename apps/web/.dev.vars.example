@@ -4,3 +4,4 @@ APP_URL=http://localhost:8787
 ADMIN_EMAIL=baseer@baseer.co.uk
 ADMIN_PASSWORD=changeme-baseer-admin
 BETTER_AUTH_SECRET=replace-with-long-random-secret
+RESEND_API_KEY=

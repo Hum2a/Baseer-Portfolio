@@ -34,6 +34,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const WORKER_SECRET_KEYS = [
   "DATABASE_URL",
   "BETTER_AUTH_SECRET",
+  "RESEND_API_KEY",
   "R2_ACCOUNT_ID",
   "R2_ACCESS_KEY_ID",
   "R2_SECRET_ACCESS_KEY",

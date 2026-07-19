@@ -37,7 +37,7 @@ npm run secrets:sync:production
 ```
 
 Source file order: `.env.<env>` → `apps/web/.dev.vars` → `.env`.  
-Synced keys: `DATABASE_URL`, `BETTER_AUTH_SECRET` (required), optional `R2_*`.  
+Synced keys: `DATABASE_URL`, `BETTER_AUTH_SECRET` (required), optional `RESEND_API_KEY`, `R2_*`.  
 `APP_URL` / `OWNER_ID` / `ADMIN_EMAIL` stay in `wrangler.toml` `[vars]` — not uploaded as secrets.
 
 5. Add Hyperdrive binding ids to `wrangler.toml` under each env when ready.
