@@ -67,7 +67,7 @@ npm run dev            # Vite :5173 (proxies /api → :8787)
 npm run dev:worker     # Worker + API :8787
 ```
 
-Admin: `/admin/login` → CMS (Site, Navigation, Pages builder, Sectors, case studies, etc.). Default seed password from `ADMIN_PASSWORD` (see `.env.example`). Page composition is block-based (`pages` / `page_blocks`); site default theme comes from `site_settings.default_theme_id` with optional visitor override via `ThemeSwitcher`.
+Admin: `/admin/login` → CMS. Primary editor is **Studio** (`/admin/studio`) — document-tree visual CMS (`documents` / `document_revisions`). Legacy Pages block builder may still exist. Default seed password from `ADMIN_PASSWORD` (see `.env.example`).
 
 ## Verification
 

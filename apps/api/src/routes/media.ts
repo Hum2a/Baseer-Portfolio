@@ -21,8 +21,20 @@ mediaRoutes.use("/proxy/*", requireAdmin);
 mediaRoutes.post("/presign", async (c) => {
   const body = presignRequestSchema.parse(await c.req.json());
   const isCv = body.purpose === "cv";
-  const allowed = isCv ? ALLOWED_CV_TYPES : ALLOWED_IMAGE_TYPES;
-  const max = isCv ? MAX_CV_BYTES : MAX_IMAGE_BYTES;
+  const isFont = body.purpose === "font";
+  const allowed = isCv
+    ? ALLOWED_CV_TYPES
+    : isFont
+      ? ([
+          "font/woff2",
+          "font/woff",
+          "font/ttf",
+          "application/font-woff",
+          "application/font-woff2",
+          "application/octet-stream",
+        ] as const)
+      : ALLOWED_IMAGE_TYPES;
+  const max = isCv ? MAX_CV_BYTES : isFont ? 5 * 1024 * 1024 : MAX_IMAGE_BYTES;
 
   if (!(allowed as readonly string[]).includes(body.contentType)) {
     return c.json({ error: "Unsupported content type" }, 400);

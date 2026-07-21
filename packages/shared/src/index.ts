@@ -282,7 +282,14 @@ export const presignRequestSchema = z.object({
   filename: z.string().min(1).max(200),
   contentType: z.string().min(1),
   byteSize: z.number().int().positive(),
-  purpose: z.enum(["case-study-image", "gallery-image", "cv", "site-asset"]),
+  purpose: z.enum([
+    "case-study-image",
+    "gallery-image",
+    "cv",
+    "site-asset",
+    "font",
+    "media-library",
+  ]),
 });
 
 export function slugify(title: string): string {
@@ -306,3 +313,14 @@ export const DEFAULT_FOOTER_LINKS: FooterLink[] = [
   { id: "foot-contact", label: "Contact", href: "/contact", visible: true },
   { id: "foot-sitemap", label: "Sitemap", href: "/sitemap.xml", visible: true },
 ];
+
+export * from "./document";
+
+export const presignPurposeSchema = z.enum([
+  "case-study-image",
+  "gallery-image",
+  "cv",
+  "site-asset",
+  "font",
+  "media-library",
+]);

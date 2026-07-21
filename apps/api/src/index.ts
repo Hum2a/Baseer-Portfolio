@@ -10,6 +10,14 @@ import { mediaRoutes } from "./routes/media";
 import { analyticsRoutes } from "./routes/analytics";
 import { pagesRoutes } from "./routes/pages";
 import { sectorsRoutes } from "./routes/sectors";
+import { documentsRoutes } from "./routes/documents";
+import { designSystemRoutes } from "./routes/design-system";
+import { mediaLibraryRoutes } from "./routes/media-library";
+import { formsRoutes } from "./routes/forms";
+import { integrationsRoutes } from "./routes/integrations";
+import { aiRoutes } from "./routes/ai";
+import { experimentsRoutes } from "./routes/experiments";
+import { usersRoutes } from "./routes/users";
 
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -56,6 +64,14 @@ export function createApp() {
   app.route("/api/analytics", analyticsRoutes);
   app.route("/api/pages", pagesRoutes);
   app.route("/api/sectors", sectorsRoutes);
+  app.route("/api/documents", documentsRoutes);
+  app.route("/api/design-system", designSystemRoutes);
+  app.route("/api/media-library", mediaLibraryRoutes);
+  app.route("/api/forms", formsRoutes);
+  app.route("/api/integrations", integrationsRoutes);
+  app.route("/api/ai", aiRoutes);
+  app.route("/api/experiments", experimentsRoutes);
+  app.route("/api/users", usersRoutes);
 
   return app;
 }

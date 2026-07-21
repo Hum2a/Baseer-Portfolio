@@ -5,9 +5,10 @@ import type { CaseStudy } from "../../lib/types";
 import type { AnalyticsSummary } from "../../lib/analytics-types";
 
 const links = [
+  { to: "/admin/studio", label: "Studio", hint: "Visual page editor" },
   { to: "/admin/site", label: "Site", hint: "Brand, theme, SEO, contact" },
   { to: "/admin/navigation", label: "Navigation", hint: "Header and footer links" },
-  { to: "/admin/pages", label: "Pages", hint: "Section builder" },
+  { to: "/admin/pages", label: "Pages (legacy)", hint: "Old section builder" },
   { to: "/admin/sectors", label: "Sectors", hint: "Sector labels and intros" },
   { to: "/admin/case-studies", label: "Case studies", hint: "Create and reorder work" },
   { to: "/admin/testimonials", label: "Testimonials", hint: "Quotes and attribution" },

@@ -34,17 +34,17 @@ Better Auth (email/password) at `/api/auth`, same origin. Sign-up disabled. Sing
 
 Client `trackPageView` on public route changes → `POST /api/analytics/beacon`. Admin summary at `GET /api/analytics/admin/summary?range=7d|30d|90d`.
 
-## Headless CMS / page builder
+## Visual CMS (Studio)
 
-Admin-owned site chrome and page composition (no third-party CMS):
+Primary composition model is a **document tree** (Figma-inspired), not the legacy section stack:
 
-- **`site_settings`** — brand, SEO, default theme (`defaultThemeId`), visitor theme toggle, nav/footer JSON, about bio, contact/CV
-- **`sectors`** — slug/label/intro metadata for automotive/charity/education
-- **`pages` + `page_blocks`** — ordered, toggleable blocks (`hero`, `spec_strip`, `sector_grid`, …) per page key (`home`, `about`, `contact`, `sector:{slug}`, `work`)
-- Public SPA loads `/api/pages/public/:key` and renders via `BlockRenderer`; empty DB falls back to seeded defaults
-- Theme: admin default applies when localStorage has no override; if `allowVisitorThemes` is false, public `ThemeSwitcher` is hidden and the site default is forced
-
-Admin areas: Site, Navigation, Pages, Sectors (plus existing case studies / testimonials / skills / timeline / analytics).
+- **`documents` + `document_revisions`** — draft/publish versions; JSON tree of nodes (`frame`, `stack`, `grid`, `text`, `button`, `image`, `component`, `embed`, …) with flow or absolute layout and breakpoint overrides
+- **`design_system`** — tokens/fonts; **`media_assets`** library; **`forms` / `form_submissions`** (Resend); **`site_integrations`** (head HTML + BYOK AI keys); **`ab_experiments`**
+- Public pages render via `DocumentRenderer` (`/api/documents/public-resolve`); header/footer are documents (`__header`, `__footer`)
+- Admin **Studio** at `/admin/studio` — canvas editor with layers, inspector tooltips, undo, preview, publish
+- Legacy `pages` / `page_blocks` admin remains temporarily as “Pages (legacy)”
+- Case studies / testimonials / skills / timeline stay as **data sources** bound into `component` nodes
+- Packaging for other clients is deferred — see `docs/PACKAGING.md`
 
 ## Media
 

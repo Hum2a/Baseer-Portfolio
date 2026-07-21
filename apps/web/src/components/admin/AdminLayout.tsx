@@ -6,10 +6,11 @@ import { ThemeSwitcher } from "../ThemeSwitcher";
 
 const nav = [
   { to: "/admin", label: "Dashboard", end: true },
+  { to: "/admin/studio", label: "Studio" },
   { to: "/admin/analytics", label: "Analytics" },
   { to: "/admin/site", label: "Site" },
   { to: "/admin/navigation", label: "Navigation" },
-  { to: "/admin/pages", label: "Pages" },
+  { to: "/admin/pages", label: "Pages (legacy)" },
   { to: "/admin/sectors", label: "Sectors" },
   { to: "/admin/case-studies", label: "Case studies" },
   { to: "/admin/testimonials", label: "Testimonials" },

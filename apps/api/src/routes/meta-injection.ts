@@ -1,7 +1,13 @@
 import { and, asc, eq } from "drizzle-orm";
+import type { DocumentTree } from "@baseer-portfolio/shared";
 import type { Env } from "../env";
 import { createDb } from "../db/client";
-import { caseStudies, siteSettings } from "../db/schema";
+import {
+  caseStudies,
+  documentRevisions,
+  documents,
+  siteSettings,
+} from "../db/schema";
 
 export type SeoMeta = {
   title: string;
@@ -14,6 +20,11 @@ const DEFAULT_TITLE = "Baseer — Marketing Portfolio";
 const DEFAULT_DESCRIPTION =
   "Campaigns and launches across automotive, charity, and education.";
 
+function pathToSlug(pathname: string): string {
+  const clean = pathname.replace(/^\/+|\/+$/g, "");
+  return clean === "" ? "home" : clean;
+}
+
 export async function resolveSeoMeta(
   env: Env,
   pathname: string,
@@ -23,48 +34,7 @@ export async function resolveSeoMeta(
 
   try {
     const [settings] = await db.select().from(siteSettings).limit(1);
-
-    if (path === "/") {
-      return {
-        title: settings?.introHeadline
-          ? `${settings.introHeadline} — Baseer`
-          : DEFAULT_TITLE,
-        description: settings?.introSubhead ?? DEFAULT_DESCRIPTION,
-        imageKey: null,
-        canonicalPath: "/",
-      };
-    }
-
-    if (path === "/about") {
-      return {
-        title: "About — Baseer",
-        description: "Career timeline, skills, and CV.",
-        imageKey: null,
-        canonicalPath: "/about",
-      };
-    }
-
-    if (path === "/contact") {
-      return {
-        title: "Contact — Baseer",
-        description: settings?.contactEmail
-          ? `Get in touch at ${settings.contactEmail}`
-          : "Get in touch.",
-        imageKey: null,
-        canonicalPath: "/contact",
-      };
-    }
-
-    if (path === "/automotive" || path === "/charity" || path === "/education") {
-      const sector = path.slice(1);
-      const label = sector.charAt(0).toUpperCase() + sector.slice(1);
-      return {
-        title: `${label} — Baseer`,
-        description: `Case studies in ${sector}.`,
-        imageKey: null,
-        canonicalPath: path,
-      };
-    }
+    const suffix = settings?.seoTitleSuffix || settings?.siteName || "Baseer";
 
     const workMatch = path.match(/^\/work\/([a-z0-9-]+)$/);
     if (workMatch) {
@@ -76,18 +46,64 @@ export async function resolveSeoMeta(
         .limit(1);
       if (row) {
         return {
-          title: `${row.title} — Baseer`,
+          title: `${row.title} — ${suffix}`,
           description: row.dek,
-          imageKey: row.heroImageKey,
+          imageKey: row.heroImageKey ?? settings?.ogImageKey ?? null,
           canonicalPath: `/work/${row.slug}`,
         };
       }
     }
 
+    const docSlug = pathToSlug(path);
+    const [doc] = await db
+      .select()
+      .from(documents)
+      .where(
+        and(
+          eq(documents.slug, docSlug),
+          eq(documents.locale, "en"),
+          eq(documents.status, "published"),
+        ),
+      )
+      .limit(1);
+    if (doc?.publishedRevisionId) {
+      const [rev] = await db
+        .select()
+        .from(documentRevisions)
+        .where(eq(documentRevisions.id, doc.publishedRevisionId))
+        .limit(1);
+      const tree = rev?.tree as DocumentTree | undefined;
+      const title = tree?.seo?.title || doc.title;
+      const description =
+        tree?.seo?.description ||
+        settings?.defaultMetaDescription ||
+        DEFAULT_DESCRIPTION;
+      return {
+        title: title.includes(suffix) ? title : `${title} — ${suffix}`,
+        description,
+        imageKey: tree?.seo?.ogImageKey ?? settings?.ogImageKey ?? null,
+        canonicalPath: path === "/" ? "/" : path,
+      };
+    }
+
+    if (path === "/") {
+      return {
+        title: settings?.introHeadline
+          ? `${settings.introHeadline} — ${suffix}`
+          : DEFAULT_TITLE,
+        description:
+          settings?.defaultMetaDescription ||
+          settings?.introSubhead ||
+          DEFAULT_DESCRIPTION,
+        imageKey: settings?.ogImageKey ?? null,
+        canonicalPath: "/",
+      };
+    }
+
     return {
       title: DEFAULT_TITLE,
-      description: DEFAULT_DESCRIPTION,
-      imageKey: null,
+      description: settings?.defaultMetaDescription || DEFAULT_DESCRIPTION,
+      imageKey: settings?.ogImageKey ?? null,
       canonicalPath: path,
     };
   } finally {

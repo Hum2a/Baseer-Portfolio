@@ -1,12 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
+import { BareLayout } from "./components/BareLayout";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { AdminRequire } from "./components/admin/AdminRequire";
-import { HomePage } from "./pages/Home";
-import { SectorPage } from "./pages/SectorPage";
+import { DocumentPage } from "./pages/DocumentPage";
 import { WorkDetailPage } from "./pages/WorkDetail";
-import { AboutPage } from "./pages/About";
-import { ContactPage } from "./pages/Contact";
 import { AdminLoginPage } from "./pages/admin/Login";
 import { AdminDashboardPage } from "./pages/admin/Dashboard";
 import { AdminAnalyticsPage } from "./pages/admin/AnalyticsAdmin";
@@ -25,22 +23,48 @@ import {
   AdminPagesListPage,
 } from "./pages/admin/PagesAdmin";
 import { AdminSectorsPage } from "./pages/admin/SectorsAdmin";
+import { StudioApp } from "./studio/StudioApp";
 
 export function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route element={<BareLayout />}>
+          <Route index element={<DocumentPage titleFallback="Home" />} />
+          <Route
+            path="automotive"
+            element={<DocumentPage slugOverride="automotive" titleFallback="Automotive" />}
+          />
+          <Route
+            path="charity"
+            element={<DocumentPage slugOverride="charity" titleFallback="Charity" />}
+          />
+          <Route
+            path="education"
+            element={<DocumentPage slugOverride="education" titleFallback="Education" />}
+          />
+          <Route path="about" element={<DocumentPage slugOverride="about" titleFallback="About" />} />
+          <Route
+            path="contact"
+            element={<DocumentPage slugOverride="contact" titleFallback="Contact" />}
+          />
+          <Route path="p/*" element={<DocumentPage />} />
+        </Route>
+
         <Route element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="automotive" element={<SectorPage sector="automotive" />} />
-          <Route path="charity" element={<SectorPage sector="charity" />} />
-          <Route path="education" element={<SectorPage sector="education" />} />
           <Route path="work/:slug" element={<WorkDetailPage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="contact" element={<ContactPage />} />
         </Route>
 
         <Route path="admin/login" element={<AdminLoginPage />} />
+
+        <Route
+          path="admin/studio"
+          element={
+            <AdminRequire>
+              <StudioApp />
+            </AdminRequire>
+          }
+        />
 
         <Route
           path="admin"
@@ -66,7 +90,7 @@ export function App() {
           <Route path="settings" element={<Navigate to="/admin/site" replace />} />
         </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<DocumentPage />} />
       </Routes>
     </BrowserRouter>
   );
