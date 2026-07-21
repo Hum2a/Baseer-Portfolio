@@ -63,6 +63,21 @@ export default {
       return app.fetch(request, env, ctx);
     }
 
+    // Browsers still probe /favicon.ico; SPA fallback would return HTML and break the tab icon.
+    if (url.pathname === "/favicon.ico") {
+      const svgRes = await env.ASSETS.fetch(
+        new Request(new URL("/favicon.svg", url.origin), {
+          method: "GET",
+          headers: { Accept: "image/svg+xml,*/*" },
+        }),
+      );
+      if (!svgRes.ok) return svgRes;
+      const headers = new Headers(svgRes.headers);
+      headers.set("Content-Type", "image/svg+xml; charset=utf-8");
+      headers.set("Cache-Control", "public, max-age=86400");
+      return new Response(svgRes.body, { status: 200, headers });
+    }
+
     if (url.pathname === "/sitemap.xml") {
       try {
         const xml = await buildSitemapXml(env);

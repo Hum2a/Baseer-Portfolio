@@ -10,7 +10,7 @@ import {
   DEFAULT_FOOTER_LINKS,
   DEFAULT_NAV_LINKS,
 } from "@baseer-portfolio/shared";
-import { apiFetch } from "./api-client";
+import { apiFetch, mediaFileUrl } from "./api-client";
 import type { SiteSettings } from "./types";
 
 type SiteSettingsContextValue = {
@@ -69,14 +69,34 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!settings) return;
     const desc = settings.defaultMetaDescription?.trim();
-    if (!desc) return;
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement("meta");
-      meta.setAttribute("name", "description");
-      document.head.appendChild(meta);
+    if (desc) {
+      let meta = document.querySelector('meta[name="description"]');
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("name", "description");
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", desc);
     }
-    meta.setAttribute("content", desc);
+
+    const customIcon = mediaFileUrl(settings.faviconKey);
+    const href = customIcon || "/favicon.svg";
+    const type = customIcon
+      ? customIcon.endsWith(".svg")
+        ? "image/svg+xml"
+        : "image/png"
+      : "image/svg+xml";
+    for (const rel of ["icon", "shortcut icon"] as const) {
+      let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = rel;
+        document.head.appendChild(link);
+      }
+      link.type = type;
+      // Cache-bust so browsers pick up replacements after CMS uploads.
+      link.href = customIcon ? `${href}${href.includes("?") ? "&" : "?"}v=${settings.id}` : href;
+    }
   }, [settings]);
 
   const value = useMemo(
